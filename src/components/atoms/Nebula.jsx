@@ -1,16 +1,22 @@
 import { useEffect, useRef } from 'react';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion.js';
+import { useInView, cappedDpr } from '../../hooks/useInView.js';
 
 export function Nebula({ intensity = 1.6 }) {
   const ref = useRef(null);
   const reduced = usePrefersReducedMotion();
+  const inView = useInView(ref);
 
   useEffect(() => {
     if (reduced) return undefined;
     const canvas = ref.current;
     if (!canvas) return undefined;
     const ctx = canvas.getContext('2d');
+    const dpr = cappedDpr();
+    const isCoarse = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches;
+    const cloudCount = isCoarse ? 7 : 11;
     let raf;
+    let running = true;
     const clouds = [];
     const palette = [
       [255, 107, 44, 0.26 * intensity],
@@ -23,15 +29,15 @@ export function Nebula({ intensity = 1.6 }) {
     ];
 
     const resize = () => {
-      canvas.width = canvas.offsetWidth * devicePixelRatio;
-      canvas.height = canvas.offsetHeight * devicePixelRatio;
+      canvas.width = canvas.offsetWidth * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
       clouds.length = 0;
-      for (let i = 0; i < 11; i++) {
+      for (let i = 0; i < cloudCount; i++) {
         const c = palette[i % palette.length];
         clouds.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          r: (180 + Math.random() * 360) * devicePixelRatio,
+          r: (180 + Math.random() * 360) * dpr,
           vx: (Math.random() - 0.5) * 0.22,
           vy: (Math.random() - 0.5) * 0.16,
           color: c,
@@ -45,6 +51,7 @@ export function Nebula({ intensity = 1.6 }) {
 
     let t = 0;
     const draw = () => {
+      if (!running) return;
       t += 1;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.globalCompositeOperation = 'lighter';
@@ -68,12 +75,16 @@ export function Nebula({ intensity = 1.6 }) {
       ctx.globalCompositeOperation = 'source-over';
       raf = requestAnimationFrame(draw);
     };
-    draw();
+
+    running = inView;
+    if (running) draw();
+
     return () => {
+      running = false;
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
     };
-  }, [intensity, reduced]);
+  }, [intensity, reduced, inView]);
 
   return <canvas ref={ref} className="nebula-canvas" aria-hidden="true" />;
 }

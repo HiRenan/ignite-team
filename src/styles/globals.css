@@ -19,8 +19,7 @@
   --accent-cool-deep: #1f3a7a;
   --accent-violet: #8a5cf6;
   --accent-cyan: #5ad8ff;
-  --font-display: "Cormorant Garamond", "Instrument Serif", "Times New Roman", serif;
-  --font-display-tight: "Instrument Serif", "Cormorant Garamond", serif;
+  --font-display: "Cormorant Garamond", "Times New Roman", serif;
   --font-sans: "Manrope", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --max: 1440px;
@@ -529,6 +528,13 @@ section[id] { scroll-margin-top: var(--nav-h); }
   opacity: 0; animation: fadein 1s 0.8s forwards;
 }
 @media (max-width: 980px) { .hud-compass { display: none; } }
+.hud-compass svg .compass-needle {
+  transform-origin: 50px 50px;
+  animation: compass-needle-spin 30s linear infinite;
+}
+@keyframes compass-needle-spin {
+  to { transform: rotate(360deg); }
+}
 
 /* Hero content */
 .hero-content { position: relative; z-index: 10; max-width: var(--max); margin: 0 auto; width: 100%; }
@@ -1181,6 +1187,8 @@ section[id] { scroll-margin-top: var(--nav-h); }
 /* ============================================================
    Reduced motion — keep layout, drop heavy animation
    ============================================================ */
+/* Compass needle disabled when reduced motion (the wrapper rule below handles it via animation-duration override) */
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

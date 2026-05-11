@@ -1,24 +1,30 @@
 import { useEffect, useRef } from 'react';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion.js';
+import { useInView, cappedDpr } from '../../hooks/useInView.js';
 
 export function StarField({ density = 220, speed = 1, shooting = true }) {
   const ref = useRef(null);
   const reduced = usePrefersReducedMotion();
+  const inView = useInView(ref);
 
   useEffect(() => {
     if (reduced) return undefined;
     const canvas = ref.current;
     if (!canvas) return undefined;
     const ctx = canvas.getContext('2d');
+    const dpr = cappedDpr();
+    const isCoarse = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches;
+    const effectiveDensity = isCoarse ? Math.round(density * 0.55) : density;
     let raf;
+    let running = true;
     const stars = [];
     const shooters = [];
 
     const resize = () => {
-      canvas.width = canvas.offsetWidth * devicePixelRatio;
-      canvas.height = canvas.offsetHeight * devicePixelRatio;
+      canvas.width = canvas.offsetWidth * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
       stars.length = 0;
-      for (let i = 0; i < density; i++) {
+      for (let i = 0; i < effectiveDensity; i++) {
         const depth = Math.random();
         stars.push({
           x: Math.random() * canvas.width,
@@ -38,21 +44,22 @@ export function StarField({ density = 220, speed = 1, shooting = true }) {
     let t = 0;
     const maybeSpawnShooter = () => {
       if (!shooting) return;
-      if (Math.random() < 0.004 && shooters.length < 2) {
+      if (Math.random() < 0.003 && shooters.length < 2) {
         shooters.push({
           x: Math.random() * canvas.width * 0.7,
           y: Math.random() * canvas.height * 0.4,
-          vx: (6 + Math.random() * 4) * devicePixelRatio,
-          vy: (2 + Math.random() * 2) * devicePixelRatio,
+          vx: (6 + Math.random() * 4) * dpr,
+          vy: (2 + Math.random() * 2) * dpr,
           life: 1,
         });
       }
     };
 
     const draw = () => {
+      if (!running) return;
       t += speed;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const drift = Math.sin(t * 0.0006) * 4 * devicePixelRatio;
+      const drift = Math.sin(t * 0.0006) * 4 * dpr;
       stars.forEach((s) => {
         const alpha = s.a * (0.5 + 0.5 * Math.sin(t * s.tw + s.phase));
         let color;
@@ -61,12 +68,12 @@ export function StarField({ density = 220, speed = 1, shooting = true }) {
         else color = `rgba(255,255,255,${alpha})`;
         ctx.fillStyle = color;
         ctx.beginPath();
-        ctx.arc(s.x + drift * s.depth, s.y, s.r * devicePixelRatio, 0, Math.PI * 2);
+        ctx.arc(s.x + drift * s.depth, s.y, s.r * dpr, 0, Math.PI * 2);
         ctx.fill();
         if (s.r > 1.1) {
           ctx.fillStyle = color.replace(/[\d.]+\)$/, `${alpha * 0.15})`);
           ctx.beginPath();
-          ctx.arc(s.x + drift * s.depth, s.y, s.r * devicePixelRatio * 4, 0, Math.PI * 2);
+          ctx.arc(s.x + drift * s.depth, s.y, s.r * dpr * 4, 0, Math.PI * 2);
           ctx.fill();
         }
       });
@@ -81,7 +88,7 @@ export function StarField({ density = 220, speed = 1, shooting = true }) {
         grad.addColorStop(0, `rgba(255, 220, 180, ${sh.life})`);
         grad.addColorStop(1, 'rgba(255, 220, 180, 0)');
         ctx.strokeStyle = grad;
-        ctx.lineWidth = 1.4 * devicePixelRatio;
+        ctx.lineWidth = 1.4 * dpr;
         ctx.beginPath();
         ctx.moveTo(sh.x, sh.y);
         ctx.lineTo(sh.x - sh.vx * 10, sh.y - sh.vy * 10);
@@ -92,12 +99,15 @@ export function StarField({ density = 220, speed = 1, shooting = true }) {
       raf = requestAnimationFrame(draw);
     };
 
-    draw();
+    running = inView;
+    if (running) draw();
+
     return () => {
+      running = false;
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
     };
-  }, [density, speed, shooting, reduced]);
+  }, [density, speed, shooting, reduced, inView]);
 
   return <canvas ref={ref} className="starfield" aria-hidden="true" />;
 }
