@@ -1,30 +1,46 @@
-import { Kicker } from './atoms/Kicker.jsx';
-import { StatViz } from './atoms/StatViz.jsx';
-
-const VIZ_KINDS = ['bars', 'line', 'pulse'];
+import { motion } from 'motion/react';
+import { sectionReveal, sectionContainer, statRise, viewportOnce } from '../lib/motion.js';
 
 export function MissionSection({ t }) {
   return (
     <section id="mission" className="section">
-      <div className="section-head">
-        <div className="col-left"><Kicker>{t.mission.kicker}</Kicker></div>
-        <div className="col-right">
-          <h2 className="section-title reveal-up">{t.mission.title}</h2>
-          <p className="section-body reveal-up">{t.mission.body}</p>
-        </div>
+      <div className="section-runner">
+        <span>{t.mission.kicker}</span>
+        <span className="section-runner-r">PLATE 01 / 07</span>
       </div>
-      <div className="stats-grid">
-        {t.mission.stats.map((s, i) => (
-          <div key={i} className="stat reveal-up" style={{ '--delay': `${i * 120}ms` }}>
-            <div className="stat-spark">METRIC / 0{i + 1}</div>
-            <div>
-              <div className="stat-num"><span className="ember">{s.n}</span></div>
-              <div className="stat-label">{s.l}</div>
-            </div>
-            <StatViz kind={VIZ_KINDS[i]} />
-          </div>
-        ))}
-      </div>
+
+      <motion.div
+        className="mission-grid"
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={sectionContainer}
+      >
+        <motion.div variants={sectionReveal}>
+          <span className="plate-num" aria-hidden="true">01</span>
+        </motion.div>
+
+        <motion.div variants={sectionReveal}>
+          <h2 className="section-title">{t.mission.title}</h2>
+          <p className="section-body">{t.mission.body}</p>
+        </motion.div>
+
+        <motion.div className="mission-stats" variants={sectionContainer}>
+          {t.mission.stats.map((s, i) => (
+            <motion.div
+              key={i}
+              className="mission-stat-row"
+              variants={statRise}
+            >
+              <span className="mission-stat-num">{s.n}</span>
+              <div className="mission-stat-meta">
+                <span className="mission-stat-viz" style={{ '--w': `${[70, 58, 92][i] || 60}%` }} aria-hidden="true" />
+                <span className="label">{s.l}</span>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

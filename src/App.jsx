@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
+import { MotionConfig } from 'motion/react';
 import { DICT } from './i18n.js';
-import { useReveal } from './hooks/useReveal.js';
 import { Nav } from './components/Nav.jsx';
 import { Hero } from './components/Hero.jsx';
 import { MissionSection } from './components/MissionSection.jsx';
@@ -31,12 +31,10 @@ export default function App() {
     document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
   }, [lang]);
 
-  useReveal();
-
   const t = DICT[lang];
 
   return (
-    <>
+    <MotionConfig reducedMotion="user">
       <a href="#mission" className="skip-link">{t.skip}</a>
       <Nav lang={lang} setLang={setLang} t={t} />
       <main>
@@ -50,6 +48,6 @@ export default function App() {
         <CTASection t={t} />
       </main>
       <Footer t={t} />
-    </>
+    </MotionConfig>
   );
 }

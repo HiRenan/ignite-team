@@ -1,26 +1,44 @@
-import { Kicker } from './atoms/Kicker.jsx';
+import { motion } from 'motion/react';
+import { sectionReveal, sectionContainer, statRise, viewportOnce } from '../lib/motion.js';
 
-const BAR_WIDTHS = ['85%', '90%', '100%'];
+// Per-row alignment: large left, ember-emphasised centre, big right.
+const ROW_VARIANTS = ['', 'center', 'align-r'];
 
 export function ImpactSection({ t }) {
   return (
     <section id="impact" className="section">
-      <div className="section-head">
-        <div className="col-left"><Kicker>{t.impact.kicker}</Kicker></div>
-        <div className="col-right">
-          <h2 className="section-title reveal-up">{t.impact.title}</h2>
-        </div>
+      <div className="section-runner">
+        <span>{t.impact.kicker}</span>
+        <span className="section-runner-r">PLATE 04 / 07</span>
       </div>
-      <div className="impact-grid">
-        {t.impact.nums.map((n, i) => (
-          <div key={i} className="impact-cell reveal-up" style={{ '--delay': `${i * 150}ms` }}>
-            <div className="spark">METRIC / 0{i + 1}</div>
-            <div className={`impact-num${i === 1 ? ' accent' : ''}`}>{n.n}</div>
-            <div className="impact-label">{n.l}</div>
-            <div className="impact-bar" style={{ '--w': BAR_WIDTHS[i] }} />
-          </div>
-        ))}
-      </div>
+
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={sectionContainer}
+      >
+        <motion.h2
+          className="section-title"
+          variants={sectionReveal}
+          style={{ marginBottom: 'clamp(48px, 6vw, 80px)' }}
+        >
+          {t.impact.title}
+        </motion.h2>
+
+        <motion.div className="impact-rows" variants={sectionContainer}>
+          {t.impact.nums.map((n, i) => (
+            <motion.div
+              key={i}
+              className={`impact-row ${ROW_VARIANTS[i] || ''}`.trim()}
+              variants={statRise}
+            >
+              <span className="impact-num">{n.n}</span>
+              <span className="impact-label">{n.l}</span>
+            </motion.div>
+          ))}
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

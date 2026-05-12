@@ -1,38 +1,47 @@
-import { Kicker } from './atoms/Kicker.jsx';
+import { motion } from 'motion/react';
 import { HowViz } from './atoms/HowViz.jsx';
+import { sectionReveal, sectionContainer, viewportOnce } from '../lib/motion.js';
 
 const KINDS = ['observe', 'interpret', 'act'];
 
 export function HowSection({ t }) {
   return (
     <section id="how" className="section">
-      <div className="section-head">
-        <div className="col-left"><Kicker>{t.how.kicker}</Kicker></div>
-        <div className="col-right">
-          <h2 className="section-title reveal-up">{t.how.title}</h2>
-        </div>
+      <div className="section-runner">
+        <span>{t.how.kicker}</span>
+        <span className="section-runner-r">PLATE 03 / 07</span>
       </div>
-      <div className="how-wrap">
-        {t.how.steps.map((s, i) => (
-          <div key={i} className="how-step reveal-up" style={{ '--delay': `${i * 120}ms` }}>
-            <div className="how-num">
-              <span className="how-num-dot" aria-hidden="true" />
-              STEP / {s.n}
-            </div>
-            <div>
+
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={viewportOnce}
+        variants={sectionContainer}
+      >
+        <motion.h2
+          className="section-title"
+          variants={sectionReveal}
+          style={{ marginBottom: 'clamp(48px, 7vw, 88px)' }}
+        >
+          {t.how.title}
+        </motion.h2>
+
+        <motion.div className="how-flow" variants={sectionContainer}>
+          {t.how.steps.map((s, i) => (
+            <motion.div key={i} className="how-step" variants={sectionReveal}>
+              <span className="how-num">{`STEP / ${s.n}`}</span>
               <h3 className="how-title">
                 {s.t}
-                <span className="ember">.</span>
+                <span className="end">.</span>
               </h3>
               <p className="how-desc">{s.d}</p>
-            </div>
-            <div className="how-viz">
-              <div className="how-line" aria-hidden="true" />
-              <HowViz kind={KINDS[i]} />
-            </div>
-          </div>
-        ))}
-      </div>
+              <div className="how-viz">
+                <HowViz kind={KINDS[i]} />
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </motion.div>
     </section>
   );
 }
