@@ -10,5 +10,10 @@ dist-ssr
 .playwright-mcp/
 hero-*.jpeg
 hero-*.png
+section-*.png
+mission-*.png
+nav-*.png
+prod-*.jpeg
+prod-*.png
 
 .vercel

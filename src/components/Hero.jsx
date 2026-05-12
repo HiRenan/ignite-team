@@ -1,101 +1,103 @@
 import { useEffect, useState } from 'react';
-import { Nebula } from './atoms/Nebula.jsx';
-import { StarField } from './atoms/StarField.jsx';
-import { OrbitalDebris } from './atoms/OrbitalDebris.jsx';
-import { GridHUD } from './atoms/GridHUD.jsx';
-import { Satellite } from './Satellite.jsx';
-import { HudTelemetry } from './HudTelemetry.jsx';
-import { HudCompass } from './HudCompass.jsx';
+import { motion } from 'motion/react';
+import Globe from './Globe.jsx';
+import { heroContainer, heroLineRise, heroFade } from '../lib/motion.js';
 
-const TICKER_ITEMS = [
-  'SIGNAL NOMINAL',
-  'ORBIT 512 KM',
-  'VEL 7.66 KM/S',
-  'TRACKING: VEGETATION',
-  'GRID UPLINK OK',
-  'AIRBUS PARTNER · 2026',
-  'BORDEAUX · WORLD FINALS',
-];
+function formatUtcMinute(d) {
+  // YYYY-MM-DD HH:MM UTC — updates once a minute, not every second.
+  const iso = d.toISOString();
+  return `${iso.slice(0, 10)} ${iso.slice(11, 16)} UTC`;
+}
 
 export function Hero({ t }) {
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(id);
+    // Tick once per minute, aligned to the wall-clock minute boundary.
+    const msToNextMinute = 60_000 - (Date.now() % 60_000);
+    let interval;
+    const timeout = setTimeout(() => {
+      setNow(new Date());
+      interval = setInterval(() => setNow(new Date()), 60_000);
+    }, msToNextMinute);
+    return () => {
+      clearTimeout(timeout);
+      if (interval) clearInterval(interval);
+    };
   }, []);
-
-  const timeStr = `${now.toISOString().replace('T', ' ').slice(0, 19)} UTC`;
 
   return (
     <section className="hero" id="top">
-      <Nebula intensity={1.8} />
-      <StarField density={340} />
-      <OrbitalDebris />
-      <GridHUD />
-      <div className="sun-flare" aria-hidden="true" />
-      <div className="lens-flare" aria-hidden="true" />
-      <div className="planet-distant" aria-hidden="true" />
-      <div className="earth-stage" aria-hidden="true">
-        <div className="earth-atmosphere" />
-        <div className="earth-globe">
-          <div className="earth-continents" />
-          <div className="earth-clouds" />
-          <div className="earth-citylights" />
-          <div className="earth-terminator" />
-          <div className="earth-scan" />
-          <div className="earth-glow-rim" />
-        </div>
+      <div className="hero-runner" aria-hidden="true">
+        <span className="hero-runner-l">{t.hero.runner}</span>
+        <span className="hero-runner-r">47.16°N · 0.65°W</span>
       </div>
-      <div className="satellite-orbit" aria-hidden="true" />
-      <div className="satellite-orbit-2" aria-hidden="true" />
-      <div className="satellite-orbit-3" aria-hidden="true" />
-      <Satellite />
-      <Satellite className="sat-2" />
-      <div className="hud-corners" aria-hidden="true">
-        <span />
-        <span />
-      </div>
-      <HudTelemetry />
-      <HudCompass />
 
-      <div className="hero-content">
-        <div className="hero-eyebrow">
-          <span className="pulse" aria-hidden="true" />
-          {t.hero.eyebrow}
+      <motion.div
+        className="hero-grid"
+        initial="hidden"
+        animate="visible"
+        variants={heroContainer}
+      >
+        <div className="hero-l">
+          <motion.div className="hero-plate" variants={heroFade}>
+            <span className="hero-plate-dot" aria-hidden="true" />
+            <span className="hero-plate-label">{t.hero.kicker}</span>
+            <span className="hero-plate-rule" aria-hidden="true" />
+          </motion.div>
+
+          <h1 className="hero-title">
+            {t.hero.lines.map((line, i) => (
+              <span className="hero-title-line" key={i}>
+                <motion.span variants={heroLineRise}>
+                  {i === t.hero.lines.length - 1 ? (
+                    <span className="hero-title-em">{line}</span>
+                  ) : (
+                    line
+                  )}
+                </motion.span>
+              </span>
+            ))}
+          </h1>
+
+          <motion.p className="hero-sub" variants={heroFade}>
+            {t.hero.sub}
+          </motion.p>
+
+          <motion.div variants={heroFade}>
+            <a className="hero-cta" href="#mission">
+              <span className="arrow" aria-hidden="true">→</span>
+              <span>{t.hero.cta}</span>
+            </a>
+          </motion.div>
         </div>
-        <h1 className="hero-title">
-          <span className="line"><span>{t.hero.title1}</span></span>
-          <span className="line"><span className="italic">{t.hero.title2}</span></span>
-          <span className="line"><span className="ember">{t.hero.title3}</span></span>
-        </h1>
-        <p className="hero-sub">{t.hero.sub}</p>
-        <div className="hero-cta-row">
-          <a className="btn btn-primary btn-sm" href="#mission">{t.hero.cta} →</a>
-          <a className="btn btn-ghost btn-sm" href="#contact">{t.hero.ctaSecondary}</a>
-        </div>
-        <div className="hero-bottombar">
-          <div className="scroll-indicator" aria-hidden="true">
-            <span className="line-dn" />
-            <span>{t.hero.scroll}</span>
+
+        <motion.div className="hero-r" variants={heroFade}>
+          <div className="globe-frame">
+            <span className="corner-bl" aria-hidden="true" />
+            <span className="corner-br" aria-hidden="true" />
+            <Globe />
           </div>
-          <div className="hero-coords" aria-hidden="true">
-            <div className="hero-coords-row"><span>{t.hero.coords}</span></div>
-            <div className="hero-coords-row" style={{ marginTop: 6 }}>
-              <span className="live">● LIVE</span>
-              <span>{timeStr}</span>
+          <div className="hero-coords" aria-label="Orbital coordinates">
+            <div>
+              <span>LAT</span>
+              <b>{t.hero.coordsLat}</b>
+            </div>
+            <div>
+              <span>LON</span>
+              <b>{t.hero.coordsLon}</b>
+            </div>
+            <div>
+              <span>ALT</span>
+              <b>{t.hero.coordsAlt}</b>
+            </div>
+            <div className="hero-coords-live">
+              <span className="live">{t.hero.live}</span>
+              <span>{formatUtcMinute(now)}</span>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div className="hero-ticker" aria-hidden="true">
-        <div className="hero-ticker-track">
-          {[...TICKER_ITEMS, ...TICKER_ITEMS].map((label, i) => (
-            <span className="tick" key={i}>{label}</span>
-          ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

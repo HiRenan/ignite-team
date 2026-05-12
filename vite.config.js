@@ -20,6 +20,9 @@ export default defineConfig({
           ) {
             return 'react-vendor';
           }
+          if (id.includes('node_modules/motion/')) {
+            return 'motion';
+          }
           return undefined;
         },
       },
