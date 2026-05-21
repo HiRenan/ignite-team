@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import Globe from './Globe.jsx';
+import Globe from './Globe/index.jsx';
 import { heroContainer, heroLineRise, heroFade } from '../lib/motion.js';
 
 function formatUtcMinute(d) {
@@ -76,7 +76,36 @@ export function Hero({ t }) {
           <div className="globe-frame">
             <span className="corner-bl" aria-hidden="true" />
             <span className="corner-br" aria-hidden="true" />
+            <svg
+              className="globe-rings"
+              viewBox="0 0 100 100"
+              aria-hidden="true"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <circle className="ring-a" cx="50" cy="50" r="49" />
+              <ellipse
+                className="ring-b"
+                cx="50"
+                cy="50"
+                rx="46"
+                ry="30"
+                transform="rotate(-22 50 50)"
+              />
+              <ellipse
+                className="ring-c"
+                cx="50"
+                cy="50"
+                rx="40"
+                ry="20"
+                transform="rotate(18 50 50)"
+              />
+              <line className="ring-tick" x1="50" y1="0.5" x2="50" y2="3.5" />
+              <line className="ring-tick" x1="50" y1="96.5" x2="50" y2="99.5" />
+              <line className="ring-tick" x1="0.5" y1="50" x2="3.5" y2="50" />
+              <line className="ring-tick" x1="96.5" y1="50" x2="99.5" y2="50" />
+            </svg>
             <Globe />
+            <div className="scan-line" aria-hidden="true" />
           </div>
           <div className="hero-coords" aria-label="Orbital coordinates">
             <div>
@@ -91,8 +120,25 @@ export function Hero({ t }) {
               <span>ALT</span>
               <b>{t.hero.coordsAlt}</b>
             </div>
+            <div>
+              <span>{t.hero.coordsNextPass}</span>
+              <b>{t.hero.nextPass}</b>
+            </div>
+            <div>
+              <span>{t.hero.coordsHeading}</span>
+              <b>{t.hero.heading}</b>
+            </div>
+            <div>
+              <span>{t.hero.coordsOrbits}</span>
+              <b>{t.hero.orbits}</b>
+            </div>
             <div className="hero-coords-live">
-              <span className="live">{t.hero.live}</span>
+              <span className="live">
+                {t.hero.live}
+                <span className="signal-bars" aria-hidden="true">
+                  <span /><span /><span />
+                </span>
+              </span>
               <span>{formatUtcMinute(now)}</span>
             </div>
           </div>

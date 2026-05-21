@@ -11,6 +11,7 @@ import { AwardSection } from './components/AwardSection.jsx';
 import { TeamSection } from './components/TeamSection.jsx';
 import { CTASection } from './components/CTASection.jsx';
 import { Footer } from './components/Footer.jsx';
+import { Starfield } from './components/effects/Starfield.jsx';
 
 const STORAGE_KEY = 'ignite_lang';
 const SUPPORTED = ['pt', 'en'];
@@ -35,9 +36,10 @@ export default function App() {
 
   return (
     <MotionConfig reducedMotion="user">
+      <Starfield />
       <a href="#mission" className="skip-link">{t.skip}</a>
       <Nav lang={lang} setLang={setLang} t={t} />
-      <main>
+      <main className="app-main">
         <Hero t={t} />
         <MissionSection t={t} />
         <SolutionSection t={t} />
