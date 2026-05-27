@@ -15,5 +15,7 @@ mission-*.png
 nav-*.png
 prod-*.jpeg
 prod-*.png
+e[0-9]*-*.png
+screenshots/etapa-*.png
 
 .vercel

@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { sectionReveal, sectionContainer, viewportOnce } from '../lib/motion.js';
+import PlateNumber from './atoms/PlateNumber.jsx';
 
 const ICONS = {
   orbital: (
@@ -43,17 +44,27 @@ export function SolutionSection({ t }) {
         viewport={viewportOnce}
         variants={sectionContainer}
       >
-        <motion.div variants={sectionReveal}>
-          <span className="plate-num" aria-hidden="true">02</span>
-          <h2 className="section-title" style={{ marginTop: 16 }}>
-            {t.solution.title}
-          </h2>
-          <p className="section-body">{t.solution.body}</p>
+        <motion.div className="solution-intro" variants={sectionContainer}>
+          <motion.div variants={sectionReveal}>
+            <PlateNumber value="02" />
+          </motion.div>
+          <motion.div variants={sectionReveal}>
+            <h2 className="section-title">{t.solution.title}</h2>
+            <p className="section-body" style={{ marginTop: 20 }}>{t.solution.body}</p>
+          </motion.div>
         </motion.div>
 
-        <motion.div variants={sectionContainer}>
+        <motion.div className="solution-pillars" variants={sectionContainer}>
           {t.solution.pillars.map((p, i) => (
             <motion.div key={i} className="pillar-row" variants={sectionReveal}>
+              <svg
+                className="pillar-orbit"
+                viewBox="0 0 240 140"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <path d="M 18 26 Q 90 6, 168 50 T 230 122" />
+              </svg>
               <span className="pillar-icon">{ICONS[ICON_KEYS[i]]}</span>
               <div className="pillar-body">
                 <span className="pillar-title">{p.t}</span>

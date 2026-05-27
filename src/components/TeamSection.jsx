@@ -70,7 +70,7 @@ export function TeamSection({ t }) {
           {TEAM.map((m, i) => (
             <motion.a
               key={m.name}
-              className="team-row"
+              className={i === 0 ? 'team-row team-row--featured' : 'team-row'}
               href={m.url}
               target="_blank"
               rel="noopener noreferrer"
