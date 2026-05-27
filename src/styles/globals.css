@@ -12,7 +12,7 @@
   --rule-strong:  rgba(239, 233, 220, 0.18);
   --ink:          #efe9dc;
   --ink-2:        #8d8a82;
-  --ink-3:        #4a4a45;
+  --ink-3:        #8a8a82;   /* WCAG AA — was #4a4a45 (2.29:1 fail), now 5.7:1 on --bg */
   --ember:        #ff5132;
   --ember-soft:   #ffce5c;
 
@@ -140,8 +140,8 @@ body::after {
 
 /* ---- Focus ---- */
 :focus-visible {
-  outline: 1px solid var(--ember);
-  outline-offset: 4px;
+  outline: none;
+  box-shadow: var(--ring);
 }
 
 /* ---- Anchor offset for fixed nav ----
