@@ -1552,3 +1552,75 @@ hr.rule-strong { background: var(--rule-strong); }
     font-size: clamp(26px, 7vw, 38px);
   }
 }
+
+/* ============================================================
+   Etapa 5a — Signature moments
+   1. Globe spotlight (one-shot on Mission viewport enter)
+   2. Pillar orbit (dashed arc draws on hover)
+   ============================================================ */
+
+/* Hero globe-frame briefly pulses its 3 orbital rings — the satellite
+   acknowledging Earth's problem as Mission enters viewport. */
+.globe-frame.spotlight .ring-a { animation: spotlight-pulse 1.5s var(--ease-launch); }
+.globe-frame.spotlight .ring-b { animation: spotlight-pulse 1.5s var(--ease-launch) 0.12s; }
+.globe-frame.spotlight .ring-c { animation: spotlight-pulse 1.5s var(--ease-launch) 0.24s; }
+.globe-frame.spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 80px 4px rgba(255, 81, 50, 0.0);
+  pointer-events: none;
+  animation: spotlight-glow 1.5s var(--ease-launch);
+}
+@keyframes spotlight-pulse {
+  0%   { stroke-opacity: var(--ring-base-opacity, 0.18); }
+  35%  { stroke-opacity: 0.9; }
+  100% { stroke-opacity: var(--ring-base-opacity, 0.18); }
+}
+@keyframes spotlight-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 81, 50, 0.0); }
+  35%  { box-shadow: 0 0 120px 6px rgba(255, 81, 50, 0.18); }
+  100% { box-shadow: 0 0 80px 4px rgba(255, 81, 50, 0.0); }
+}
+
+/* Pillar orbit — a dashed satellite-trajectory arc that wipes in on hover. */
+.solution-pillars .pillar-row { overflow: hidden; }
+.pillar-orbit {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.9s var(--ease-launch);
+}
+.pillar-orbit path {
+  fill: none;
+  stroke: var(--ember);
+  stroke-opacity: 0.75;
+  stroke-width: 1;
+  stroke-dasharray: 4 6;
+}
+.solution-pillars .pillar-row:hover .pillar-orbit {
+  clip-path: inset(0 0 0 0);
+}
+.solution-pillars .pillar-icon,
+.solution-pillars .pillar-num,
+.solution-pillars .pillar-body {
+  position: relative;
+  z-index: 1;
+}
+@media (max-width: 980px) {
+  .pillar-orbit { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .globe-frame.spotlight .ring-a,
+  .globe-frame.spotlight .ring-b,
+  .globe-frame.spotlight .ring-c,
+  .globe-frame.spotlight::after { animation: none; }
+  .pillar-orbit { transition: none; clip-path: inset(0 0 0 0); }
+  .pillar-orbit path { stroke-opacity: 0.35; }
+}

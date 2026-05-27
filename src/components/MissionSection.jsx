@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { sectionReveal, sectionContainer, statRise, viewportOnce } from '../lib/motion.js';
 import PlateNumber from './atoms/PlateNumber.jsx';
+import CountStat from './atoms/CountStat.jsx';
 
 export function MissionSection({ t }) {
   return (
@@ -33,7 +34,7 @@ export function MissionSection({ t }) {
               className="mission-stat-row"
               variants={statRise}
             >
-              <span className="mission-stat-num">{s.n}</span>
+              <CountStat className="mission-stat-num" value={s.n} />
               <div className="mission-stat-meta">
                 <span className="mission-stat-viz" style={{ '--w': `${[70, 58, 92][i] || 60}%` }} aria-hidden="true" />
                 <span className="label">{s.l}</span>

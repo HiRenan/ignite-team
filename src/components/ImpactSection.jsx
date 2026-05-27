@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { sectionReveal, sectionContainer, statRise, viewportOnce } from '../lib/motion.js';
+import CountStat from './atoms/CountStat.jsx';
 
 // Row variants: secondary-left, featured-centre (huge ember), secondary-right.
 const ROW_VARIANTS = ['', 'featured', 'align-r'];
@@ -33,7 +34,7 @@ export function ImpactSection({ t }) {
               className={`impact-row ${ROW_VARIANTS[i] || ''}`.trim()}
               variants={statRise}
             >
-              <span className="impact-num">{n.n}</span>
+              <CountStat className="impact-num" value={n.n} />
               <span className="impact-label">{n.l}</span>
             </motion.div>
           ))}

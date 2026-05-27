@@ -57,6 +57,14 @@ export function SolutionSection({ t }) {
         <motion.div className="solution-pillars" variants={sectionContainer}>
           {t.solution.pillars.map((p, i) => (
             <motion.div key={i} className="pillar-row" variants={sectionReveal}>
+              <svg
+                className="pillar-orbit"
+                viewBox="0 0 240 140"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <path d="M 18 26 Q 90 6, 168 50 T 230 122" />
+              </svg>
               <span className="pillar-icon">{ICONS[ICON_KEYS[i]]}</span>
               <div className="pillar-body">
                 <span className="pillar-title">{p.t}</span>
