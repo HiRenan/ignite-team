@@ -28,6 +28,49 @@
     />
   </head>
   <body>
+    <noscript>
+      <style>
+        .noscript-fallback {
+          font-family: Geist, system-ui, sans-serif;
+          background: #04060e;
+          color: #efe9dc;
+          min-height: 100vh;
+          padding: 48px 24px;
+          max-width: 720px;
+          margin: 0 auto;
+          line-height: 1.6;
+        }
+        .noscript-fallback h1 {
+          font-family: Fraunces, Georgia, serif;
+          font-weight: 400;
+          font-size: clamp(40px, 7vw, 72px);
+          line-height: 1.02;
+          letter-spacing: -0.02em;
+          margin: 0 0 24px;
+        }
+        .noscript-fallback h1 em { color: #ff5132; font-style: italic; }
+        .noscript-fallback p { color: rgba(239, 233, 220, 0.78); margin: 0 0 16px; }
+        .noscript-fallback a { color: #ff5132; text-decoration: underline; }
+        .noscript-fallback .kicker {
+          font-family: 'Geist Mono', ui-monospace, monospace;
+          font-size: 11px;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: rgba(239, 233, 220, 0.5);
+          margin-bottom: 16px;
+        }
+        .noscript-fallback hr { border: none; border-top: 1px solid rgba(239, 233, 220, 0.12); margin: 32px 0; }
+      </style>
+      <main class="noscript-fallback">
+        <p class="kicker">IGNITE · Orbital Observation Mission · 2026</p>
+        <h1>Seeing what power grids <em>miss.</em></h1>
+        <p>IGNITE turns orbital imagery into preventive decisions for utility companies — identifying vegetation risk along transmission lines before it becomes the next blackout.</p>
+        <p>This site is built as an interactive editorial atlas. Enable JavaScript to experience the full mission. The signal still reaches you here:</p>
+        <hr />
+        <p><strong>ACT IN SPACE 2026 · World Finals · Bordeaux</strong><br />Airbus Partner Award</p>
+        <p>Reach out: <a href="mailto:ignite@actinspace.org">ignite@actinspace.org</a> · <a href="https://www.linkedin.com/in/renan-mocelin-br/">team on LinkedIn</a></p>
+      </main>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
