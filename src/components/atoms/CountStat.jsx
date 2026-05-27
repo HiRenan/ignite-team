@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { animate, useInView } from 'motion/react';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion.js';
+import { EASE_OUT_STRONG } from '../../lib/motion.js';
 
 const COUNTABLE = /^(\D*)(\d+)(\D*)$/;
 
@@ -31,7 +32,7 @@ export default function CountStat({ value, className }) {
     if (!inView) return undefined;
     const controls = animate(0, target, {
       duration: 1.6,
-      ease: [0.22, 1, 0.36, 1],
+      ease: EASE_OUT_STRONG,
       onUpdate(latest) {
         setDisplay(`${prefix}${Math.round(latest)}${suffix}`);
       },
