@@ -1624,3 +1624,18 @@ hr.rule-strong { background: var(--rule-strong); }
   .pillar-orbit { transition: none; clip-path: inset(0 0 0 0); }
   .pillar-orbit path { stroke-opacity: 0.35; }
 }
+
+/* ============================================================
+   Etapa 6a — Small-phone trims (≤460px)
+   Hero runner, mission stat lead, plate numerals get tightened so
+   nothing overlaps or wraps awkwardly on a 360-wide screen.
+   ============================================================ */
+@media (max-width: 460px) {
+  .hero-runner-r { display: none; }
+  .hero-runner-l { font-size: 9px; letter-spacing: 0.18em; }
+  .section-runner { font-size: 9px; letter-spacing: 0.18em; }
+  .section-runner-r { font-size: 9px; }
+  .plate-num { font-size: clamp(96px, 30vw, 132px); }
+  .hero-coords { font-size: 9px; }
+  .hero-coords > div b { font-size: 11px; }
+}
