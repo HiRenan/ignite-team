@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { sectionReveal, sectionContainer, statRise, viewportOnce } from '../lib/motion.js';
+import PlateNumber from './atoms/PlateNumber.jsx';
 
 export function MissionSection({ t }) {
   return (
@@ -17,7 +18,7 @@ export function MissionSection({ t }) {
         variants={sectionContainer}
       >
         <motion.div variants={sectionReveal}>
-          <span className="plate-num" aria-hidden="true">01</span>
+          <PlateNumber value="01" />
         </motion.div>
 
         <motion.div variants={sectionReveal}>

@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { sectionReveal, sectionContainer, viewportOnce } from '../lib/motion.js';
+import PlateNumber from './atoms/PlateNumber.jsx';
 
 const ICONS = {
   orbital: (
@@ -44,7 +45,7 @@ export function SolutionSection({ t }) {
         variants={sectionContainer}
       >
         <motion.div variants={sectionReveal}>
-          <span className="plate-num" aria-hidden="true">02</span>
+          <PlateNumber value="02" />
           <h2 className="section-title" style={{ marginTop: 16 }}>
             {t.solution.title}
           </h2>

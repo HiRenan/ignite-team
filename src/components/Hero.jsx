@@ -74,8 +74,6 @@ export function Hero({ t }) {
 
         <motion.div className="hero-r" variants={heroFade}>
           <div className="globe-frame">
-            <span className="corner-bl" aria-hidden="true" />
-            <span className="corner-br" aria-hidden="true" />
             <svg
               className="globe-rings"
               viewBox="0 0 100 100"
@@ -99,13 +97,8 @@ export function Hero({ t }) {
                 ry="20"
                 transform="rotate(18 50 50)"
               />
-              <line className="ring-tick" x1="50" y1="0.5" x2="50" y2="3.5" />
-              <line className="ring-tick" x1="50" y1="96.5" x2="50" y2="99.5" />
-              <line className="ring-tick" x1="0.5" y1="50" x2="3.5" y2="50" />
-              <line className="ring-tick" x1="96.5" y1="50" x2="99.5" y2="50" />
             </svg>
             <Globe />
-            <div className="scan-line" aria-hidden="true" />
           </div>
           <div className="hero-coords" aria-label="Orbital coordinates">
             <div>
