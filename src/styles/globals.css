@@ -16,18 +16,60 @@
   --ember:        #ff5132;
   --ember-soft:   #ffce5c;
 
-  /* ---- Type ---- */
+  /* ---- Type families ---- */
   --font-display: "Fraunces", "Times New Roman", serif;
   --font-sans:    "Geist", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono:    "Geist Mono", ui-monospace, monospace;
+
+  /* ---- Type scale (ratio 1.333 — perfect fourth)
+         Anchor: hero-title at --step-3. Section-specific clamps
+         (plate-num, impact-num, pillar-title) stay inline because
+         they are intentionally outside the editorial scale.
+         Italic policy: Fraunces italic only for emphasis —
+         hero h1 last line (<em>), Solution pillar accents, Award
+         h2 (narrative summit), Team banner quote, CTA emphasized
+         word. Never in body, never in nav, never in mono labels. */
+  --step-1: clamp(72px, 13vw, 220px);   /* display-xl */
+  --step-2: clamp(56px, 9vw, 140px);    /* cta-title */
+  --step-3: clamp(48px, 8vw, 124px);    /* hero-title */
+  --step-4: clamp(48px, 7.5vw, 110px);  /* section-title */
+  --step-5: clamp(32px, 4vw, 64px);     /* display-m / mid-emphasis */
+  --step-6: clamp(20px, 1.6vw, 24px);   /* body upper / lead */
+  --step-7: clamp(17px, 1.2vw, 19px);   /* body */
 
   /* ---- Layout ---- */
   --max:    1440px;
   --gutter: clamp(20px, 4vw, 64px);
   --nav-h:  64px;
 
+  /* ---- Spacing scale (4px base) ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --space-7: 64px;
+  --space-8: 96px;
+
+  /* ---- Radius ---- */
+  --radius-1:    2px;
+  --radius-2:    8px;
+  --radius-pill: 999px;
+
+  /* ---- Motion durations ---- */
+  --dur-fast:      150ms;
+  --dur-base:      300ms;
+  --dur-slow:      600ms;
+  --dur-cinematic: 1200ms;
+
   /* ---- Easing ---- */
-  --ease-editorial: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-editorial:  cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-launch:     cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-strong: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* ---- Focus ring composite (consumed in Etapa 4b) ---- */
+  --ring: 0 0 0 2px var(--bg-deeper), 0 0 0 4px var(--ember);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -115,7 +157,7 @@ section[id] { scroll-margin-top: var(--nav-h); }
   font-family: var(--font-display);
   font-weight: 300;
   font-variation-settings: "opsz" 144, "SOFT" 30;
-  font-size: clamp(72px, 13vw, 220px);
+  font-size: var(--step-1);
   line-height: 0.85;
   letter-spacing: -0.025em;
 }
@@ -123,7 +165,7 @@ section[id] { scroll-margin-top: var(--nav-h); }
   font-family: var(--font-display);
   font-weight: 400;
   font-variation-settings: "opsz" 120;
-  font-size: clamp(48px, 7.5vw, 120px);
+  font-size: var(--step-4);
   line-height: 0.92;
   letter-spacing: -0.015em;
 }
@@ -131,12 +173,12 @@ section[id] { scroll-margin-top: var(--nav-h); }
   font-family: var(--font-display);
   font-weight: 400;
   font-variation-settings: "opsz" 64;
-  font-size: clamp(32px, 4vw, 64px);
+  font-size: var(--step-5);
   line-height: 1.02;
   letter-spacing: -0.01em;
 }
 .body-l {
-  font-size: clamp(17px, 1.2vw, 19px);
+  font-size: var(--step-7);
   line-height: 1.55;
   color: var(--ink-2);
 }
@@ -330,7 +372,7 @@ section[id] { scroll-margin-top: var(--nav-h); }
   font-family: var(--font-display);
   font-weight: 300;
   font-variation-settings: "opsz" 144, "SOFT" 25;
-  font-size: clamp(48px, 8vw, 124px);
+  font-size: var(--step-3);
   line-height: 0.86;
   letter-spacing: -0.028em;
   color: var(--ink);
@@ -573,7 +615,7 @@ hr.rule-strong { background: var(--rule-strong); }
   font-family: var(--font-display);
   font-weight: 400;
   font-variation-settings: "opsz" 120;
-  font-size: clamp(48px, 7.5vw, 110px);
+  font-size: var(--step-4);
   line-height: 0.94;
   letter-spacing: -0.02em;
   color: var(--ink);
@@ -902,10 +944,11 @@ hr.rule-strong { background: var(--rule-strong); }
 .award-h {
   font-family: var(--font-display);
   font-weight: 400;
-  font-variation-settings: "opsz" 120;
+  font-style: italic;
+  font-variation-settings: "opsz" 120, "SOFT" 40;
   font-size: clamp(40px, 5vw, 72px);
   line-height: 0.96;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.012em;
   white-space: pre-line;
   color: var(--ink);
 }
@@ -1113,7 +1156,7 @@ hr.rule-strong { background: var(--rule-strong); }
   font-family: var(--font-display);
   font-weight: 400;
   font-variation-settings: "opsz" 144;
-  font-size: clamp(56px, 9vw, 140px);
+  font-size: var(--step-2);
   line-height: 0.95;
   letter-spacing: -0.025em;
   color: var(--ink);
