@@ -1,8 +1,8 @@
 import { motion } from 'motion/react';
 import { sectionReveal, sectionContainer, statRise, viewportOnce } from '../lib/motion.js';
 
-// Per-row alignment: large left, ember-emphasised centre, big right.
-const ROW_VARIANTS = ['', 'center', 'align-r'];
+// Row variants: secondary-left, featured-centre (huge ember), secondary-right.
+const ROW_VARIANTS = ['', 'featured', 'align-r'];
 
 export function ImpactSection({ t }) {
   return (

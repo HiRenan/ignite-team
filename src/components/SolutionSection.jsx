@@ -44,15 +44,17 @@ export function SolutionSection({ t }) {
         viewport={viewportOnce}
         variants={sectionContainer}
       >
-        <motion.div variants={sectionReveal}>
-          <PlateNumber value="02" />
-          <h2 className="section-title" style={{ marginTop: 16 }}>
-            {t.solution.title}
-          </h2>
-          <p className="section-body">{t.solution.body}</p>
+        <motion.div className="solution-intro" variants={sectionContainer}>
+          <motion.div variants={sectionReveal}>
+            <PlateNumber value="02" />
+          </motion.div>
+          <motion.div variants={sectionReveal}>
+            <h2 className="section-title">{t.solution.title}</h2>
+            <p className="section-body" style={{ marginTop: 20 }}>{t.solution.body}</p>
+          </motion.div>
         </motion.div>
 
-        <motion.div variants={sectionContainer}>
+        <motion.div className="solution-pillars" variants={sectionContainer}>
           {t.solution.pillars.map((p, i) => (
             <motion.div key={i} className="pillar-row" variants={sectionReveal}>
               <span className="pillar-icon">{ICONS[ICON_KEYS[i]]}</span>
