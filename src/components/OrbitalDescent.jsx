@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform, useMotionValue, useMotionValueEvent } from 'motion/react';
+import { motion, useScroll, useTransform, useMotionValue, useMotionValueEvent, useMotionTemplate } from 'motion/react';
 import PlateNumber from './atoms/PlateNumber.jsx';
 import { useInViewportOnce } from '../hooks/useInViewportOnce.js';
 
@@ -12,22 +12,24 @@ const OrbitalGlobe = lazy(() => import('./Globe/OrbitalGlobe.jsx'));
 //  EDIT ME — the rhythm of the "orbital descent". Everything is driven by the
 //  scroll progress p (0 = top of the pinned section, 1 = bottom), NOT by time.
 // ───────────────────────────────────────────────────────────────────────────
-const TRACK_VH       = 260;  // height of the scroll track → how much scrolling drives the descent
-const ZOOM_START     = 0.15; // progress at which the globe starts zooming in
-const ZOOM_MAX       = 2.6;  // cobe `scale` at the bottom (the zoom-into-Earth)
-const CROSSFADE      = 0.55; // progress where the globe HANDS OFF to the satellite image
-const CROSSFADE_BAND = 0.18; // half-width of the crossfade (smaller = snappier swap)
-const SAT_SCALE_FROM = 1.18; // satellite grows from this scale → 1.0 (lands settling)
-const COPY_FADE_END  = 0.30; // the headline/copy has fully faded out by this progress
+const TRACK_VH         = 230;  // height of the scroll track → how much scrolling drives the descent
+const ZOOM_START       = 0.15; // progress at which the globe starts zooming in
+const ZOOM_MAX         = 1.2;  // cobe surface magnify — KEEP ≤1.25 so the sphere never crops inside its square canvas
+const COPY_FADE_END    = 0.30; // the headline/copy has fully faded out by this progress
+const GLOBE_REST_SHIFT = 21;   // vw — globe rests this far RIGHT of centre (clears the title)
+const GLOBE_CENTER_BY  = 0.48; // progress by which the globe has eased back to centre for the dive
+const GLOBE_GROW_MAX   = 1.35; // whole-globe grow — sized with the canvas (min(58vw,74svh)) so it fits the viewport: NO side clipping
+const GLOBE_FADE_START = 0.72; // progress where the globe starts dissolving into the next module
 // ───────────────────────────────────────────────────────────────────────────
 
 const clamp01 = (n) => (n < 0 ? 0 : n > 1 ? 1 : n);
 
-// Cinematic "descida orbital": as you scroll through this pinned section the
-// globe zooms toward Earth and crossfades into the satellite ground view —
-// reading as one continuous descent from orbit to the surface. Rendered only on
-// capable desktops; OrbitalMissionSection routes reduced-motion / mobile / no-
-// WebGL users to the simple static fallback instead.
+// Cinematic "descida orbital": the globe rests on the right beside the headline;
+// as you scroll through this pinned section the copy clears, the globe eases to
+// centre, zooms in (cobe `scale` + a layer grow) and dissolves straight into the
+// next module — a continuous push *through* the planet, no satellite image.
+// Rendered only on capable desktops; OrbitalMissionSection routes reduced-motion
+// / mobile / no-WebGL users to the simple static fallback instead.
 export function OrbitalDescent({ t }) {
   const trackRef = useRef(null);
   const progressRef = useRef(0);      // bridges progress → cobe zoom (read in its rAF loop)
@@ -58,12 +60,15 @@ export function OrbitalDescent({ t }) {
 
   useMotionValueEvent(scrollY, 'change', syncProgress);
 
-  // Crossfade the globe out and the satellite in, around CROSSFADE.
-  const globeOpacity = useTransform(progress, [CROSSFADE - CROSSFADE_BAND, CROSSFADE + CROSSFADE_BAND], [1, 0]);
-  const satOpacity = useTransform(progress, [CROSSFADE - CROSSFADE_BAND, CROSSFADE + CROSSFADE_BAND], [0, 1]);
-  const satScale = useTransform(progress, [0, 1], [SAT_SCALE_FROM, 1]);
+  // The copy clears first; the globe then eases from its right-hand rest spot back
+  // to centre, grows, and finally dissolves so the NEXT module takes over — no
+  // satellite image, just the globe zooming through into what comes next.
   const copyOpacity = useTransform(progress, [0, COPY_FADE_END], [1, 0]);
   const copyY = useTransform(progress, [0, COPY_FADE_END], [0, -24]);
+  const globeShift = useTransform(progress, [0, GLOBE_CENTER_BY], [GLOBE_REST_SHIFT, 0]);
+  const globeX = useMotionTemplate`${globeShift}vw`;
+  const globeScale = useTransform(progress, [ZOOM_START, 1], [1, GLOBE_GROW_MAX]);
+  const globeOpacity = useTransform(progress, [GLOBE_FADE_START, 1], [1, 0]);
   const hintOpacity = useTransform(progress, [0, 0.06], [1, 0]);
 
   return (
@@ -75,54 +80,27 @@ export function OrbitalDescent({ t }) {
     >
       <div className="orbital-pin">
         <div className="orbital-descent-stage" ref={stageRef}>
-          {/* ── Globe layer (zooms via cobe `scale`, then fades out) ── */}
-          <motion.div
-            className="orbital-descent-globe"
-            style={{ opacity: globeOpacity }}
-            aria-hidden="true"
-          >
-            {entered ? (
-              <Suspense fallback={<div className="orbital-fallback" />}>
-                <OrbitalGlobe
-                  className="orbital-globe-canvas orbital-descent-globe-canvas"
-                  progressRef={progressRef}
-                  zoomMax={ZOOM_MAX}
-                  zoomStart={ZOOM_START}
-                />
-              </Suspense>
-            ) : null}
-          </motion.div>
-
-          {/* ── Satellite layer — the ground we descend onto (reuses sem-risco) ──
-              ▸ TO SWAP: replace sem-risco.png in the repo ROOT + run `npm run images`. */}
-          <motion.div
-            className="orbital-descent-sat"
-            style={{ opacity: satOpacity, scale: satScale }}
-            aria-hidden="true"
-          >
-            <picture>
-              <source
-                type="image/avif"
-                srcSet="/assets/sem-risco-960.avif 960w, /assets/sem-risco-1672.avif 1672w"
-                sizes="100vw"
-              />
-              <source
-                type="image/webp"
-                srcSet="/assets/sem-risco-960.webp 960w, /assets/sem-risco-1672.webp 1672w"
-                sizes="100vw"
-              />
-              <img
-                src="/assets/sem-risco-1672.png"
-                srcSet="/assets/sem-risco-960.png 960w, /assets/sem-risco-1672.png 1672w"
-                sizes="100vw"
-                width="1672"
-                height="941"
-                loading="lazy"
-                decoding="async"
-                alt=""
-              />
-            </picture>
-          </motion.div>
+          {/* ── Globe layer — rests on the RIGHT (clear of the title), then eases
+              to centre, zooms in via cobe `scale` + a layer grow, and dissolves
+              into the next module. No satellite image. ── */}
+          <div className="orbital-descent-globe">
+            <motion.div
+              className="orbital-descent-globe-inner"
+              style={{ x: globeX, scale: globeScale, opacity: globeOpacity }}
+              aria-hidden="true"
+            >
+              {entered ? (
+                <Suspense fallback={<div className="orbital-fallback" />}>
+                  <OrbitalGlobe
+                    className="orbital-globe-canvas orbital-descent-globe-canvas"
+                    progressRef={progressRef}
+                    zoomMax={ZOOM_MAX}
+                    zoomStart={ZOOM_START}
+                  />
+                </Suspense>
+              ) : null}
+            </motion.div>
+          </div>
 
           {/* ── Chrome — real, accessible copy. Fades out as the descent begins. ── */}
           <motion.div
@@ -152,9 +130,6 @@ export function OrbitalDescent({ t }) {
             <span>{t.orbital.descentHint}</span>
             <span className="orbital-descent-hint-arrow">↓</span>
           </motion.div>
-
-          {/* Single, real description of the satellite view for assistive tech. */}
-          <p className="sr-only">{t.orbital.satAlt}</p>
         </div>
       </div>
     </section>

@@ -1898,33 +1898,30 @@ hr.rule-strong { background: var(--rule-strong); }
 }
 .orbital-descent-stage { position: absolute; inset: 0; }
 
-/* Globe + satellite both centre on the same point so the zoom and the growing
-   image read as one continuous push toward the ground. */
-.orbital-descent-globe,
-.orbital-descent-sat {
+/* The globe sits in a full-bleed centring layer; the inner wrapper is what we
+   transform — shifted RIGHT at rest (clear of the headline), then eased back to
+   centre, grown, and dissolved as the dive carries into the next module. */
+.orbital-descent-globe {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
+  z-index: 0;
+}
+.orbital-descent-globe-inner {
+  display: grid;
+  place-items: center;
+  transform-origin: center center;
   will-change: opacity, transform;
 }
-.orbital-descent-globe { z-index: 0; }
-.orbital-descent-sat   { z-index: 1; }
 
-/* The cobe canvas: a centred square big enough to read as full-screen, with room
-   above for the lofted route arc. ▸ Tune its size here. */
+/* The cobe canvas: a square sized to sit on the right, then grown by the layer as
+   you dive in. Room above for the lofted route arc. ▸ Tune its size here (and the
+   GLOBE_* constants in OrbitalDescent.jsx). */
 .orbital-descent-globe-canvas {
-  width: min(86vw, 82svh);
-  height: min(86vw, 82svh);
+  width: min(58vw, 74svh);
+  height: min(58vw, 74svh);
   aspect-ratio: 1 / 1;
-}
-.orbital-descent-sat picture { display: block; width: 100%; height: 100%; }
-.orbital-descent-sat img {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;          /* fill the viewport on the way down */
-  object-position: 50% 42%;   /* matches the hero framing */
 }
 
 /* Editorial copy overlay — fades out as the descent begins. Left-darkening scrim
@@ -1950,7 +1947,7 @@ hr.rule-strong { background: var(--rule-strong); }
   display: flex;
   flex-direction: column;
   gap: clamp(14px, 2vw, 22px);
-  max-width: 620px;
+  max-width: min(460px, 44vw); /* keeps the headline clear of the right-hand globe */
 }
 .orbital-route-label {
   font-family: var(--font-mono);
@@ -1990,27 +1987,15 @@ hr.rule-strong { background: var(--rule-strong); }
   50%      { transform: translateY(4px); opacity: 1; }
 }
 
-/* Static fallback (OrbitalStatic) — gentle one-shot crossfade globe → satellite. */
-.orbital-stage--swap .orbital-swap-globe,
-.orbital-stage--swap .orbital-swap-sat {
+/* Static fallback (OrbitalStatic) — the line-art globe filling the stage. */
+.orbital-stage-globe {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
+  z-index: 1;
 }
-.orbital-stage--swap .orbital-swap-globe { z-index: 1; transition: opacity 0.9s var(--ease-editorial); }
-.orbital-stage--swap .orbital-swap-globe svg { width: 100%; height: 100%; }
-.orbital-stage--swap .orbital-swap-sat   { z-index: 2; opacity: 0; transition: opacity 0.9s var(--ease-editorial); }
-.orbital-stage--swap .orbital-swap-sat picture { display: block; width: 100%; height: 100%; }
-.orbital-stage--swap .orbital-swap-sat img {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-  border: 1px solid var(--rule-strong);
-}
-.orbital-stage--swap.is-grounded .orbital-swap-globe { opacity: 0.12; }
-.orbital-stage--swap.is-grounded .orbital-swap-sat   { opacity: 1; }
+.orbital-stage-globe svg { width: 100%; height: 100%; }
 
 /* Mobile & reduced-motion: NEVER pin / scroll-jack. (These users render the
    static fallback, but we also un-pin defensively in case the query flips

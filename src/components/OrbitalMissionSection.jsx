@@ -3,7 +3,6 @@ import { motion } from 'motion/react';
 import { sectionReveal, sectionContainer, viewportOnce } from '../lib/motion.js';
 import PlateNumber from './atoms/PlateNumber.jsx';
 import GlobeSVG from './Globe/Globe.jsx';
-import { useInViewportOnce } from '../hooks/useInViewportOnce.js';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion.js';
 import { hasWebGL } from '../lib/webgl.js';
 import { OrbitalDescent } from './OrbitalDescent.jsx';
@@ -38,12 +37,10 @@ export function OrbitalMissionSection({ t }) {
   return <OrbitalStatic t={t} />;
 }
 
-// Static, dependency-free fallback. Static SVG globe → gentle crossfade to the
-// satellite once the stage scrolls into view (CSS transition, not scroll-linked).
+// Static, dependency-free fallback (reduced-motion · mobile · no-WebGL): the calm
+// editorial 2-column layout — copy on the left, a weightless line-art globe on the
+// right. No WebGL, no scroll-jacking, no satellite image; just the quiet version.
 function OrbitalStatic({ t }) {
-  // Fire the crossfade once the stage is ~a third visible.
-  const [stageRef, grounded] = useInViewportOnce({ rootMargin: '0px', threshold: 0.3 });
-
   return (
     <section id="orbital" className="section">
       <div className="section-runner">
@@ -69,11 +66,7 @@ function OrbitalStatic({ t }) {
           </motion.div>
         </motion.div>
 
-        <motion.div
-          className={`orbital-stage orbital-stage--swap${grounded ? ' is-grounded' : ''}`}
-          ref={stageRef}
-          variants={sectionReveal}
-        >
+        <motion.div className="orbital-stage" variants={sectionReveal}>
           {/* Decorative orbital rings (styled in globals.css; hidden ≤780px). */}
           <svg
             className="globe-rings"
@@ -89,37 +82,9 @@ function OrbitalStatic({ t }) {
           {/* Static globe — no WebGL, no cobe. The line-art SVG is on-brand and
               weightless. ▸ TO USE A PHOTO INSTEAD: drop public/assets/globo-estatico.png
               and replace <GlobeSVG/> below with an <img src="/assets/globo-estatico.png" …/>. */}
-          <div className="orbital-swap-globe">
+          <div className="orbital-stage-globe">
             <GlobeSVG />
           </div>
-
-          {/* The satellite "ground" that fades in (reuses sem-risco). */}
-          <div className="orbital-swap-sat" aria-hidden="true">
-            <picture>
-              <source
-                type="image/avif"
-                srcSet="/assets/sem-risco-960.avif 960w, /assets/sem-risco-1672.avif 1672w"
-                sizes="(max-width: 980px) 100vw, 50vw"
-              />
-              <source
-                type="image/webp"
-                srcSet="/assets/sem-risco-960.webp 960w, /assets/sem-risco-1672.webp 1672w"
-                sizes="(max-width: 980px) 100vw, 50vw"
-              />
-              <img
-                src="/assets/sem-risco-1672.png"
-                srcSet="/assets/sem-risco-960.png 960w, /assets/sem-risco-1672.png 1672w"
-                sizes="(max-width: 980px) 100vw, 50vw"
-                width="1672"
-                height="941"
-                loading="lazy"
-                decoding="async"
-                alt=""
-              />
-            </picture>
-          </div>
-
-          <p className="sr-only">{t.orbital.satAlt}</p>
         </motion.div>
       </motion.div>
     </section>
