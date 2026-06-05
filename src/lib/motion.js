@@ -2,6 +2,10 @@
 
 const EASE_OUT_EDITORIAL = [0.2, 0.8, 0.2, 1];
 
+// Stronger ease-out for one-shot counts and entrance physics. Matches
+// the CSS token --ease-out-strong in globals.css.
+export const EASE_OUT_STRONG = [0.22, 0.61, 0.36, 1];
+
 // Hero entrance — headline lines rise individually with stagger.
 export const heroContainer = {
   hidden: {},

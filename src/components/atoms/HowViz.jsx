@@ -2,12 +2,17 @@
 // Restyled in the Editorial Orbital Atlas palette: bone-on-midnight
 // monochrome with a single ember accent dot per diagram.
 
+import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion.js';
+
 const STROKE = 'rgba(239, 233, 220, 0.42)';   // ink-2 @ 50 %
 const FAINT = 'rgba(239, 233, 220, 0.16)';    // rule-strong
 const EMBER = '#ff5132';
 const EMBER_SOFT = '#ffce5c';
 
 export function HowViz({ kind }) {
+  // SMIL <animate> ignores CSS animation overrides — gate it in JS so
+  // reduced-motion users get the static composition.
+  const reducedMotion = usePrefersReducedMotion();
   if (kind === 'observe') {
     return (
       <svg
@@ -39,8 +44,12 @@ export function HowViz({ kind }) {
         />
         {/* Ground target — pulsing ember */}
         <circle cx="100" cy="125" r="3" fill={EMBER}>
-          <animate attributeName="r" values="3;5.5;3" dur="2.4s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="1;0.45;1" dur="2.4s" repeatCount="indefinite" />
+          {!reducedMotion && (
+            <>
+              <animate attributeName="r" values="3;5.5;3" dur="2.4s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="1;0.45;1" dur="2.4s" repeatCount="indefinite" />
+            </>
+          )}
         </circle>
       </svg>
     );
@@ -73,7 +82,9 @@ export function HowViz({ kind }) {
         {/* Detected risk cell */}
         <rect x="40" y="40" width="56" height="56" fill="none" stroke={EMBER} strokeWidth="0.6" />
         <circle cx="68" cy="68" r="3" fill={EMBER_SOFT}>
-          <animate attributeName="opacity" values="1;0.35;1" dur="1.6s" repeatCount="indefinite" />
+          {!reducedMotion && (
+            <animate attributeName="opacity" values="1;0.35;1" dur="1.6s" repeatCount="indefinite" />
+          )}
         </circle>
         {/* Safe cell */}
         <rect x="140" y="60" width="40" height="40" fill="none" stroke={STROKE} strokeWidth="0.5" />
@@ -104,7 +115,9 @@ export function HowViz({ kind }) {
         fill="none"
       />
       <circle cx="100" cy="30" r="4" fill={EMBER}>
-        <animate attributeName="r" values="4;6.5;4" dur="1.8s" repeatCount="indefinite" />
+        {!reducedMotion && (
+          <animate attributeName="r" values="4;6.5;4" dur="1.8s" repeatCount="indefinite" />
+        )}
       </circle>
       <text x="105" y="22" fontSize="7" fill={EMBER} fontFamily="ui-monospace, monospace" letterSpacing="0.18em">
         ALERT

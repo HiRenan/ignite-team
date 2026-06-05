@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import Globe from './Globe/index.jsx';
 import { heroContainer, heroLineRise, heroFade } from '../lib/motion.js';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion.js';
 
 function formatUtcMinute(d) {
   // YYYY-MM-DD HH:MM UTC — updates once a minute, not every second.
@@ -11,6 +12,8 @@ function formatUtcMinute(d) {
 
 export function Hero({ t }) {
   const [now, setNow] = useState(() => new Date());
+  const globeFrameRef = useRef(null);
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     // Tick once per minute, aligned to the wall-clock minute boundary.
@@ -25,6 +28,37 @@ export function Hero({ t }) {
       if (interval) clearInterval(interval);
     };
   }, []);
+
+  // When the Mission section enters the viewport, briefly pulse the orbital
+  // ring frame around the globe — the satellite "locks on" to Earth's problem.
+  useEffect(() => {
+    if (reducedMotion) return undefined;
+    const mission = document.getElementById('mission');
+    const frame = globeFrameRef.current;
+    if (!mission || !frame) return undefined;
+    let timeout;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            frame.classList.add('spotlight');
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+              frame.classList.remove('spotlight');
+            }, 1500);
+            io.disconnect();
+            break;
+          }
+        }
+      },
+      { threshold: 0.3 }
+    );
+    io.observe(mission);
+    return () => {
+      io.disconnect();
+      clearTimeout(timeout);
+    };
+  }, [reducedMotion]);
 
   return (
     <section className="hero" id="top">
@@ -73,9 +107,7 @@ export function Hero({ t }) {
         </div>
 
         <motion.div className="hero-r" variants={heroFade}>
-          <div className="globe-frame">
-            <span className="corner-bl" aria-hidden="true" />
-            <span className="corner-br" aria-hidden="true" />
+          <div className="globe-frame" ref={globeFrameRef}>
             <svg
               className="globe-rings"
               viewBox="0 0 100 100"
@@ -99,13 +131,8 @@ export function Hero({ t }) {
                 ry="20"
                 transform="rotate(18 50 50)"
               />
-              <line className="ring-tick" x1="50" y1="0.5" x2="50" y2="3.5" />
-              <line className="ring-tick" x1="50" y1="96.5" x2="50" y2="99.5" />
-              <line className="ring-tick" x1="0.5" y1="50" x2="3.5" y2="50" />
-              <line className="ring-tick" x1="96.5" y1="50" x2="99.5" y2="50" />
             </svg>
             <Globe />
-            <div className="scan-line" aria-hidden="true" />
           </div>
           <div className="hero-coords" aria-label="Orbital coordinates">
             <div>
