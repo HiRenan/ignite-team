@@ -41,6 +41,8 @@ export const DICT = {
       kicker: '02 — DE ONDE OBSERVAMOS',
       title: 'Cobertura\norbital.',
       body: 'De centenas de quilômetros de altitude, um único sensor acompanha corredores inteiros de transmissão — do Brasil a Bordeaux — sem pisar no solo.',
+      routeLabel: 'ROTA ORBITAL · FLORIANÓPOLIS → BORDEAUX',
+      descentHint: 'Role para aproximar',
     },
     solution: {
       kicker: '03 — A ABORDAGEM',
@@ -147,6 +149,8 @@ export const DICT = {
       kicker: '02 — WHERE WE OBSERVE',
       title: 'Orbital\ncoverage.',
       body: 'From hundreds of kilometers up, a single sensor follows entire transmission corridors — from Brazil to Bordeaux — without ever touching the ground.',
+      routeLabel: 'ORBITAL ROUTE · FLORIANÓPOLIS → BORDEAUX',
+      descentHint: 'Scroll to zoom in',
     },
     solution: {
       kicker: '03 — THE APPROACH',
