@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { sectionReveal, sectionContainer, viewportOnce } from '../lib/motion.js';
 import PlateNumber from './atoms/PlateNumber.jsx';
@@ -19,19 +19,28 @@ import { OrbitalDescent } from './OrbitalDescent.jsx';
 //
 // Either way the real copy (title/body) is always in the DOM and the section id
 // stays `#orbital`, so nothing from Phase 1 regresses.
+// Cinematic descent is desktop-only; EVERY narrower screen gets the static
+// fallback. We gate on WIDTH (not `pointer: fine`) so touch-capable laptops still
+// get the globe, and re-evaluate on resize so the choice is never stuck — loading
+// wide then narrowing (or a phone) must land on the static layout, never the
+// pinned/absolute descent (which collapses and overlaps the next section when
+// narrow). 1024px desktop breakpoint.
+const DESKTOP_MIN = 1024;
+const isWide = () => typeof window !== 'undefined' && window.innerWidth >= DESKTOP_MIN;
+
 export function OrbitalMissionSection({ t }) {
   const reduced = usePrefersReducedMotion();
-  const [capable] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    // Desktop width + WebGL → cinematic descent. Narrow screens (phones / small
-    // tablets) get the static fallback instead — no scroll-jacking. We gate on
-    // WIDTH (not `pointer: fine`) so EVERY desktop gets the globe, including
-    // touch-capable laptops/monitors that report a coarse primary pointer.
-    const wideEnough = window.innerWidth >= 1024;
-    return hasWebGL() && wideEnough;
-  });
+  const [hasGL] = useState(() => typeof window !== 'undefined' && hasWebGL());
+  const [wideEnough, setWideEnough] = useState(isWide);
 
-  if (capable && !reduced) {
+  useEffect(() => {
+    const onResize = () => setWideEnough(isWide());
+    onResize(); // sync in case width changed between mount and effect
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  if (hasGL && wideEnough && !reduced) {
     return <OrbitalDescent t={t} />;
   }
   return <OrbitalStatic t={t} />;
