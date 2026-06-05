@@ -10,7 +10,7 @@ export function ImpactSection({ t }) {
     <section id="impact" className="section">
       <div className="section-runner">
         <span>{t.impact.kicker}</span>
-        <span className="section-runner-r">PLATE 04 / 07</span>
+        <span className="section-runner-r">PLATE 06 / 09</span>
       </div>
 
       <motion.div

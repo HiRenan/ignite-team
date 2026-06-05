@@ -9,7 +9,7 @@ export function HowSection({ t }) {
     <section id="how" className="section">
       <div className="section-runner">
         <span>{t.how.kicker}</span>
-        <span className="section-runner-r">PLATE 03 / 07</span>
+        <span className="section-runner-r">PLATE 04 / 09</span>
       </div>
 
       <motion.div

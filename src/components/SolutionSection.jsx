@@ -34,7 +34,7 @@ export function SolutionSection({ t }) {
     <section id="solution" className="section">
       <div className="section-runner">
         <span>{t.solution.kicker}</span>
-        <span className="section-runner-r">PLATE 02 / 07</span>
+        <span className="section-runner-r">PLATE 03 / 09</span>
       </div>
 
       <motion.div
@@ -46,7 +46,7 @@ export function SolutionSection({ t }) {
       >
         <motion.div className="solution-intro" variants={sectionContainer}>
           <motion.div variants={sectionReveal}>
-            <PlateNumber value="02" />
+            <PlateNumber value="03" />
           </motion.div>
           <motion.div variants={sectionReveal}>
             <h2 className="section-title">{t.solution.title}</h2>
