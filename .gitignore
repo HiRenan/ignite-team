@@ -17,3 +17,4 @@ prod-*.jpeg
 prod-*.png
 
 .vercel
+.vscode
