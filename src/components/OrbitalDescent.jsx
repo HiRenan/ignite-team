@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, useMotionValue, useMotionValueEvent } from 'motion/react';
 import PlateNumber from './atoms/PlateNumber.jsx';
 import { useInViewportOnce } from '../hooks/useInViewportOnce.js';
@@ -30,39 +30,33 @@ const clamp01 = (n) => (n < 0 ? 0 : n > 1 ? 1 : n);
 // WebGL users to the simple static fallback instead.
 export function OrbitalDescent({ t }) {
   const trackRef = useRef(null);
-  const metrics = useRef({ top: 0, span: 1 }); // section's document top + scrollable span
-  const progressRef = useRef(0);               // bridges progress → cobe onRender (zoom)
-  const progress = useMotionValue(0);          // drives the layer transforms below
+  const progressRef = useRef(0);      // bridges progress → cobe zoom (read in its rAF loop)
+  const progress = useMotionValue(0); // drives the layer transforms below
   const [stageRef, entered] = useInViewportOnce({ rootMargin: '300px' });
 
-  // Whole-page scroll (reliable across browsers); we derive THIS section's
-  // 0→1 progress from its measured geometry — robust against the useScroll
-  // `target` measurement quirks under React StrictMode.
+  // Whole-page scroll (reliable across browsers). We compute THIS section's
+  // 0→1 progress LIVE from its position each frame — when the pin is engaged,
+  // `-rect.top` is exactly how far we've scrolled through the track. Measuring
+  // live (instead of caching a mount-time top) keeps the descent in sync even if
+  // the layout above settles after mount, which previously made it start late.
   const { scrollY } = useScroll();
 
-  useEffect(() => {
-    const measure = () => {
-      const el = trackRef.current;
-      if (!el) return;
-      metrics.current = {
-        top: el.getBoundingClientRect().top + window.scrollY,
-        span: Math.max(el.offsetHeight - window.innerHeight, 1),
-      };
-      const p = clamp01((window.scrollY - metrics.current.top) / metrics.current.span);
-      progress.set(p);
-      progressRef.current = p;
-    };
-    measure();
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, [progress]);
-
-  useMotionValueEvent(scrollY, 'change', (y) => {
-    const { top, span } = metrics.current;
-    const p = clamp01((y - top) / span);
+  const syncProgress = useCallback(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const span = Math.max(el.offsetHeight - window.innerHeight, 1);
+    const p = clamp01(-el.getBoundingClientRect().top / span);
     progress.set(p);
     progressRef.current = p;
-  });
+  }, [progress]);
+
+  useEffect(() => {
+    syncProgress(); // correct initial frame
+    window.addEventListener('resize', syncProgress);
+    return () => window.removeEventListener('resize', syncProgress);
+  }, [syncProgress]);
+
+  useMotionValueEvent(scrollY, 'change', syncProgress);
 
   // Crossfade the globe out and the satellite in, around CROSSFADE.
   const globeOpacity = useTransform(progress, [CROSSFADE - CROSSFADE_BAND, CROSSFADE + CROSSFADE_BAND], [1, 0]);

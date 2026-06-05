@@ -24,10 +24,12 @@ export function OrbitalMissionSection({ t }) {
   const reduced = usePrefersReducedMotion();
   const [capable] = useState(() => {
     if (typeof window === 'undefined') return false;
-    const finePointer =
-      typeof window.matchMedia === 'function' &&
-      window.matchMedia('(pointer: fine)').matches;
-    return hasWebGL() && finePointer;
+    // Desktop width + WebGL → cinematic descent. Narrow screens (phones / small
+    // tablets) get the static fallback instead — no scroll-jacking. We gate on
+    // WIDTH (not `pointer: fine`) so EVERY desktop gets the globe, including
+    // touch-capable laptops/monitors that report a coarse primary pointer.
+    const wideEnough = window.innerWidth >= 1024;
+    return hasWebGL() && wideEnough;
   });
 
   if (capable && !reduced) {
