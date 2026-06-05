@@ -83,7 +83,10 @@ html, body {
   font-feature-settings: "ss01", "cv11";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
+  /* `clip` (not `hidden`) still prevents horizontal scroll, but does NOT make
+     the root a scroll container — which would break `position: sticky` (used by
+     the orbital descent). Visually identical to the old `hidden`. */
+  overflow-x: clip;
 }
 
 body {
@@ -1872,6 +1875,154 @@ hr.rule-strong { background: var(--rule-strong); }
 @media (max-width: 980px) {
   .orbital-grid { grid-template-columns: 1fr; gap: 48px; }
   .orbital-stage { max-width: min(420px, 72vw); }
+}
+
+/* ---- 02 / Orbital DESCENT (Fase 2) — pinned cobe globe → satellite handoff ----
+   Cinematic path (OrbitalDescent.jsx). Full-bleed, breaking out of the centered
+   .section width like the hero. The PIN holds for the whole track while the
+   scroll-linked transforms run. Mobile / reduced-motion neutralise the pin (see
+   the media queries at the end) so they never scroll-jack — those users get the
+   static fallback (OrbitalStatic) instead. */
+.orbital-descent {
+  position: relative;
+  /* Tall scroll track — --track-vh is injected inline from OrbitalDescent.jsx. */
+  min-height: calc(var(--track-vh, 260) * 1vh);
+}
+.orbital-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: clip;
+  isolation: isolate;
+}
+.orbital-descent-stage { position: absolute; inset: 0; }
+
+/* Globe + satellite both centre on the same point so the zoom and the growing
+   image read as one continuous push toward the ground. */
+.orbital-descent-globe,
+.orbital-descent-sat {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  will-change: opacity, transform;
+}
+.orbital-descent-globe { z-index: 0; }
+.orbital-descent-sat   { z-index: 1; }
+
+/* The cobe canvas: a centred square big enough to read as full-screen, with room
+   above for the lofted route arc. ▸ Tune its size here. */
+.orbital-descent-globe-canvas {
+  width: min(86vw, 82svh);
+  height: min(86vw, 82svh);
+  aspect-ratio: 1 / 1;
+}
+.orbital-descent-sat picture { display: block; width: 100%; height: 100%; }
+.orbital-descent-sat img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;          /* fill the viewport on the way down */
+  object-position: 50% 42%;   /* matches the hero framing */
+}
+
+/* Editorial copy overlay — fades out as the descent begins. Left-darkening scrim
+   keeps it legible over the bright globe/markers. */
+.orbital-descent-chrome {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(90deg, rgba(4, 6, 14, 0.82) 0%, rgba(4, 6, 14, 0.5) 30%, rgba(4, 6, 14, 0.08) 56%, transparent 74%);
+  will-change: opacity, transform;
+}
+.orbital-descent-chrome-inner {
+  width: 100%;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: calc(var(--nav-h) + 24px) var(--gutter) 24px;
+}
+.orbital-descent-chrome a { pointer-events: auto; }
+.orbital-descent-copy {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2vw, 22px);
+  max-width: 620px;
+}
+.orbital-route-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ember);
+}
+
+/* Scroll hint — bottom-centre, fades the instant the descent starts. */
+.orbital-descent-hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(20px, 4vh, 40px);
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  pointer-events: none;
+  text-align: center;
+}
+.orbital-descent-hint-arrow {
+  font-size: 14px;
+  color: var(--ember);
+  animation: orbital-hint-bob 1.8s var(--ease-editorial) infinite;
+}
+@keyframes orbital-hint-bob {
+  0%, 100% { transform: translateY(0); opacity: 0.7; }
+  50%      { transform: translateY(4px); opacity: 1; }
+}
+
+/* Static fallback (OrbitalStatic) — gentle one-shot crossfade globe → satellite. */
+.orbital-stage--swap .orbital-swap-globe,
+.orbital-stage--swap .orbital-swap-sat {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.orbital-stage--swap .orbital-swap-globe { z-index: 1; transition: opacity 0.9s var(--ease-editorial); }
+.orbital-stage--swap .orbital-swap-globe svg { width: 100%; height: 100%; }
+.orbital-stage--swap .orbital-swap-sat   { z-index: 2; opacity: 0; transition: opacity 0.9s var(--ease-editorial); }
+.orbital-stage--swap .orbital-swap-sat picture { display: block; width: 100%; height: 100%; }
+.orbital-stage--swap .orbital-swap-sat img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border: 1px solid var(--rule-strong);
+}
+.orbital-stage--swap.is-grounded .orbital-swap-globe { opacity: 0.12; }
+.orbital-stage--swap.is-grounded .orbital-swap-sat   { opacity: 1; }
+
+/* Mobile & reduced-motion: NEVER pin / scroll-jack. (These users render the
+   static fallback, but we also un-pin defensively in case the query flips
+   after mount.) */
+@media (max-width: 780px) {
+  .orbital-descent { min-height: 0; }
+  .orbital-pin { position: static; height: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .orbital-descent { min-height: 0; }
+  .orbital-pin { position: static; height: auto; }
+  .orbital-descent-hint-arrow { animation: none; }
 }
 
 /* ---- 05 / Detection (CO3D) — before/after specimen + pipeline ---- */
