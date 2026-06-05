@@ -30,7 +30,7 @@ export function CTASection({ t }) {
       >
         <motion.div className="section-runner cta-plate" variants={sectionReveal} style={{ marginBottom: 0, width: '100%', maxWidth: 720 }}>
           <span>{t.cta.kicker}</span>
-          <span className="section-runner-r">PLATE 07 / 07</span>
+          <span className="section-runner-r">PLATE 09 / 09</span>
         </motion.div>
 
         <motion.h2 className="cta-title" variants={sectionReveal}>

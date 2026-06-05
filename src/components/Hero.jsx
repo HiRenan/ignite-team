@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import Globe from './Globe/index.jsx';
 import { heroContainer, heroLineRise, heroFade } from '../lib/motion.js';
-import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion.js';
+import { useSpotlightReveal } from '../hooks/useSpotlightReveal.js';
 
 function formatUtcMinute(d) {
   // YYYY-MM-DD HH:MM UTC — updates once a minute, not every second.
@@ -12,8 +11,12 @@ function formatUtcMinute(d) {
 
 export function Hero({ t }) {
   const [now, setNow] = useState(() => new Date());
-  const globeFrameRef = useRef(null);
-  const reducedMotion = usePrefersReducedMotion();
+  const heroRef = useRef(null);
+
+  // Spotlight reveal: follows the cursor (mouse / pen / touch-drag) and writes
+  // --mx/--my so the CSS radial mask uncovers the detection layer. Degrades to
+  // a static spotlight if reduced-motion / before first interaction.
+  useSpotlightReveal(heroRef);
 
   useEffect(() => {
     // Tick once per minute, aligned to the wall-clock minute boundary.
@@ -29,112 +32,129 @@ export function Hero({ t }) {
     };
   }, []);
 
-  // When the Mission section enters the viewport, briefly pulse the orbital
-  // ring frame around the globe — the satellite "locks on" to Earth's problem.
-  useEffect(() => {
-    if (reducedMotion) return undefined;
-    const mission = document.getElementById('mission');
-    const frame = globeFrameRef.current;
-    if (!mission || !frame) return undefined;
-    let timeout;
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) {
-            frame.classList.add('spotlight');
-            clearTimeout(timeout);
-            timeout = setTimeout(() => {
-              frame.classList.remove('spotlight');
-            }, 1500);
-            io.disconnect();
-            break;
-          }
-        }
-      },
-      { threshold: 0.3 }
-    );
-    io.observe(mission);
-    return () => {
-      io.disconnect();
-      clearTimeout(timeout);
-    };
-  }, [reducedMotion]);
-
   return (
-    <section className="hero" id="top">
-      <div className="hero-runner" aria-hidden="true">
-        <span className="hero-runner-l">{t.hero.runner}</span>
-        <span className="hero-runner-r">47.16°N · 0.65°W</span>
-      </div>
+    <section className="hero" id="top" ref={heroRef}>
+      {/* ── Spotlight reveal media ──────────────────────────────────────────────
+          Two pixel-aligned 16:9 layers fill the hero. The BASE (sem-risco, the
+          normal satellite view) is the LCP image and is always visible. The
+          REVEAL (com-risco, the AI detection) sits on top, masked to a soft
+          circle that follows the cursor — see .hero-media-reveal in globals.css.
 
-      <motion.div
-        className="hero-grid"
-        initial="hidden"
-        animate="visible"
-        variants={heroContainer}
-      >
-        <div className="hero-l">
-          <motion.div className="hero-plate" variants={heroFade}>
-            <span className="hero-plate-dot" aria-hidden="true" />
-            <span className="hero-plate-label">{t.hero.kicker}</span>
-            <span className="hero-plate-rule" aria-hidden="true" />
-          </motion.div>
+          ▸ TO SWAP THESE IMAGES: replace sem-risco.png / com-risco.png in the
+            repo ROOT (keep names + 16:9 framing) and run `npm run images`.
+          The layers are aria-hidden; the real alt text lives in .sr-only below. */}
+      <picture className="hero-media hero-media-base" aria-hidden="true">
+        <source
+          type="image/avif"
+          srcSet="/assets/sem-risco-960.avif 960w, /assets/sem-risco-1672.avif 1672w"
+          sizes="100vw"
+        />
+        <source
+          type="image/webp"
+          srcSet="/assets/sem-risco-960.webp 960w, /assets/sem-risco-1672.webp 1672w"
+          sizes="100vw"
+        />
+        <img
+          src="/assets/sem-risco-1672.png"
+          srcSet="/assets/sem-risco-960.png 960w, /assets/sem-risco-1672.png 1672w"
+          sizes="100vw"
+          width="1672"
+          height="941"
+          alt=""
+          fetchpriority="high"
+          decoding="async"
+        />
+      </picture>
 
-          <h1 className="hero-title">
-            {t.hero.lines.map((line, i) => (
-              <span className="hero-title-line" key={i}>
-                <motion.span variants={heroLineRise}>
-                  {i === t.hero.lines.length - 1 ? (
-                    <span className="hero-title-em">{line}</span>
-                  ) : (
-                    line
-                  )}
-                </motion.span>
-              </span>
-            ))}
-          </h1>
+      <picture className="hero-media hero-media-reveal" aria-hidden="true">
+        <source
+          type="image/avif"
+          srcSet="/assets/com-risco-960.avif 960w, /assets/com-risco-1672.avif 1672w"
+          sizes="100vw"
+        />
+        <source
+          type="image/webp"
+          srcSet="/assets/com-risco-960.webp 960w, /assets/com-risco-1672.webp 1672w"
+          sizes="100vw"
+        />
+        <img
+          src="/assets/com-risco-1672.png"
+          srcSet="/assets/com-risco-960.png 960w, /assets/com-risco-1672.png 1672w"
+          sizes="100vw"
+          width="1672"
+          height="941"
+          alt=""
+          fetchpriority="low"
+          decoding="async"
+        />
+      </picture>
 
-          <motion.p className="hero-sub" variants={heroFade}>
-            {t.hero.sub}
-          </motion.p>
+      {/* Readability scrim — keeps the editorial copy legible over the imagery. */}
+      <div className="hero-scrim" aria-hidden="true" />
 
-          <motion.div variants={heroFade}>
-            <a className="hero-cta" href="#mission">
-              <span className="arrow" aria-hidden="true">→</span>
-              <span>{t.hero.cta}</span>
-            </a>
-          </motion.div>
+      {/* Targeting ring that frames the reveal lens (see .hero-lens in globals.css).
+          Purely decorative; tracks the same --mx/--my the mask uses. */}
+      <div className="hero-lens" aria-hidden="true" />
+
+      <div className="hero-overlay">
+        <div className="hero-runner" aria-hidden="true">
+          <span className="hero-runner-l">{t.hero.runner}</span>
+          <span className="hero-runner-r">47.16°N · 0.65°W</span>
         </div>
 
-        <motion.div className="hero-r" variants={heroFade}>
-          <div className="globe-frame" ref={globeFrameRef}>
-            <svg
-              className="globe-rings"
-              viewBox="0 0 100 100"
-              aria-hidden="true"
-              preserveAspectRatio="xMidYMid meet"
-            >
-              <circle className="ring-a" cx="50" cy="50" r="49" />
-              <ellipse
-                className="ring-b"
-                cx="50"
-                cy="50"
-                rx="46"
-                ry="30"
-                transform="rotate(-22 50 50)"
-              />
-              <ellipse
-                className="ring-c"
-                cx="50"
-                cy="50"
-                rx="40"
-                ry="20"
-                transform="rotate(18 50 50)"
-              />
-            </svg>
-            <Globe />
+        {/* ── Editorial copy — fully independent of the reveal effect ────────── */}
+        <motion.div
+          className="hero-grid"
+          initial="hidden"
+          animate="visible"
+          variants={heroContainer}
+        >
+          <div className="hero-l">
+            <motion.div className="hero-plate" variants={heroFade}>
+              <span className="hero-plate-dot" aria-hidden="true" />
+              <span className="hero-plate-label">{t.hero.kicker}</span>
+              <span className="hero-plate-rule" aria-hidden="true" />
+            </motion.div>
+
+            <h1 className="hero-title">
+              {t.hero.lines.map((line, i) => (
+                <span className="hero-title-line" key={i}>
+                  <motion.span variants={heroLineRise}>
+                    {i === t.hero.lines.length - 1 ? (
+                      <span className="hero-title-em">{line}</span>
+                    ) : (
+                      line
+                    )}
+                  </motion.span>
+                </span>
+              ))}
+            </h1>
+
+            <motion.p className="hero-sub" variants={heroFade}>
+              {t.hero.sub}
+            </motion.p>
+
+            <motion.div variants={heroFade}>
+              <a className="hero-cta" href="#mission">
+                <span className="arrow" aria-hidden="true">→</span>
+                <span>{t.hero.cta}</span>
+              </a>
+            </motion.div>
           </div>
-          <div className="hero-coords" aria-label="Orbital coordinates">
+        </motion.div>
+
+        {/* ── Foot: interaction hint + compact orbital HUD over the imagery ──── */}
+        <motion.div
+          className="hero-foot"
+          initial="hidden"
+          animate="visible"
+          variants={heroContainer}
+        >
+          <motion.p className="hero-hint" variants={heroFade} aria-hidden="true">
+            {t.hero.hint}
+          </motion.p>
+
+          <motion.div className="hero-coords" variants={heroFade} aria-label="Orbital coordinates">
             <div>
               <span>LAT</span>
               <b>{t.hero.coordsLat}</b>
@@ -147,18 +167,6 @@ export function Hero({ t }) {
               <span>ALT</span>
               <b>{t.hero.coordsAlt}</b>
             </div>
-            <div>
-              <span>{t.hero.coordsNextPass}</span>
-              <b>{t.hero.nextPass}</b>
-            </div>
-            <div>
-              <span>{t.hero.coordsHeading}</span>
-              <b>{t.hero.heading}</b>
-            </div>
-            <div>
-              <span>{t.hero.coordsOrbits}</span>
-              <b>{t.hero.orbits}</b>
-            </div>
             <div className="hero-coords-live">
               <span className="live">
                 {t.hero.live}
@@ -168,9 +176,12 @@ export function Hero({ t }) {
               </span>
               <span>{formatUtcMinute(now)}</span>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
-      </motion.div>
+      </div>
+
+      {/* Single, real description of the hero imagery for assistive tech + SEO. */}
+      <p className="sr-only">{t.hero.imageAlt}</p>
     </section>
   );
 }

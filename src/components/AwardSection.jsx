@@ -7,7 +7,7 @@ export function AwardSection({ t }) {
     <section id="award" className="section">
       <div className="section-runner">
         <span>{t.award.kicker}</span>
-        <span className="section-runner-r">PLATE 05 / 07</span>
+        <span className="section-runner-r">PLATE 07 / 09</span>
       </div>
 
       <motion.div

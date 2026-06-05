@@ -15,7 +15,7 @@ export function TeamSection({ t }) {
     <section id="team" className="section">
       <div className="section-runner">
         <span>{t.team.kicker}</span>
-        <span className="section-runner-r">PLATE 06 / 07</span>
+        <span className="section-runner-r">PLATE 08 / 09</span>
       </div>
 
       <motion.div

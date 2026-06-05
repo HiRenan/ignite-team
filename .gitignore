@@ -19,3 +19,4 @@ e[0-9]*-*.png
 screenshots/etapa-*.png
 
 .vercel
+.vscode
