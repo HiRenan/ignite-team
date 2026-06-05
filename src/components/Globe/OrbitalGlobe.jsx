@@ -13,8 +13,8 @@ const BORDEAUX      = [44.84, -0.58];   // Airbus / ACT IN SPACE world finals �
 
 // Markers (glowing dots). size is relative to the globe, ~0.01..0.1.
 const MARKERS = [
-  { location: FLORIANOPOLIS, size: 0.08 },
-  { location: BORDEAUX,      size: 0.08 },
+  { location: FLORIANOPOLIS, size: 0.08 }, // IGNITE home — emphasised
+  { location: BORDEAUX,      size: 0.05 }, // the award city
 ];
 
 // The "orbital route" — a great-circle arc linking the two cities. This is a
@@ -22,17 +22,17 @@ const MARKERS = [
 const ROUTE = [{ from: FLORIANOPOLIS, to: BORDEAUX }];
 
 // Brand orange #ff6b2c → [1.0, 0.42, 0.17]
-const MARKER_RGB = [1.0, 0.42, 0.17]; // marker dots
-const ARC_RGB    = [1.0, 0.42, 0.17]; // route arc
-const GLOW_RGB   = [0.95, 0.28, 0.18]; // warm atmospheric glow
-const BASE_RGB   = [0.94, 0.92, 0.86]; // landmasses (matches --ink)
+const MARKER_RGB = [1.0, 0.42, 0.17];  // marker dots
+const ARC_RGB    = [1.0, 0.42, 0.17];  // route arc
+const GLOW_RGB   = [0.25, 0.28, 0.35]; // subtle, cool atmospheric glow
+const BASE_RGB   = [0.18, 0.20, 0.25]; // "terra escura" — dark-earth landmasses
 
 const ARC_WIDTH  = 0.6;  // arc line thickness, 0.1..2
 const ARC_HEIGHT = 0.42; // how high the arc lofts off the surface, 0.1..0.5
 
 // Motion & detail
-const SPIN_SPEED = 0.0028;        // idle auto-rotation, radians per frame
-const THETA = 0.30;               // vertical tilt
+const SPIN_SPEED = 0.004;         // idle auto-rotation, radians per frame
+const THETA = 0.25;               // vertical tilt
 const MAP_SAMPLES = 16000;        // dot density on desktop (heaviest setting)
 const MAP_SAMPLES_MOBILE = 9000;  // lighter on small screens
 // ───────────────────────────────────────────────────────────────────────────
@@ -102,9 +102,9 @@ export default function OrbitalGlobe({
       phi: 0,
       theta: THETA,
       dark: 1,
-      diffuse: 1.15,
+      diffuse: 1.2,
       mapSamples: samples,
-      mapBrightness: 5,
+      mapBrightness: 6,
       baseColor: BASE_RGB,
       markerColor: MARKER_RGB,
       glowColor: GLOW_RGB,
