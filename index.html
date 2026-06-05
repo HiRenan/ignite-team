@@ -18,6 +18,18 @@
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
+    <!-- Preload the hero LCP image (AVIF). Browsers without AVIF support simply
+         ignore this typed preload and fall back via the <picture> in Hero.jsx. -->
+    <link
+      rel="preload"
+      as="image"
+      type="image/avif"
+      href="/assets/sem-risco-1672.avif"
+      imagesrcset="/assets/sem-risco-960.avif 960w, /assets/sem-risco-1672.avif 1672w"
+      imagesizes="100vw"
+      fetchpriority="high"
+    />
+
     <title>IGNITE — Seeing the unseen. From space.</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />

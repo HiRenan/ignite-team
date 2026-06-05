@@ -4,8 +4,10 @@ import { DICT } from './i18n.js';
 import { Nav } from './components/Nav.jsx';
 import { Hero } from './components/Hero.jsx';
 import { MissionSection } from './components/MissionSection.jsx';
+import { OrbitalMissionSection } from './components/OrbitalMissionSection.jsx';
 import { SolutionSection } from './components/SolutionSection.jsx';
 import { HowSection } from './components/HowSection.jsx';
+import { DetectionSection } from './components/DetectionSection.jsx';
 import { ImpactSection } from './components/ImpactSection.jsx';
 import { AwardSection } from './components/AwardSection.jsx';
 import { TeamSection } from './components/TeamSection.jsx';
@@ -42,8 +44,10 @@ export default function App() {
       <main className="app-main">
         <Hero t={t} />
         <MissionSection t={t} />
+        <OrbitalMissionSection t={t} />
         <SolutionSection t={t} />
         <HowSection t={t} />
+        <DetectionSection t={t} />
         <ImpactSection t={t} />
         <AwardSection t={t} />
         <TeamSection t={t} />

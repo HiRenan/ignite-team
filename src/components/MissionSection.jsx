@@ -8,7 +8,7 @@ export function MissionSection({ t }) {
     <section id="mission" className="section">
       <div className="section-runner">
         <span>{t.mission.kicker}</span>
-        <span className="section-runner-r">PLATE 01 / 07</span>
+        <span className="section-runner-r">PLATE 01 / 09</span>
       </div>
 
       <motion.div
