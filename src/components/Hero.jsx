@@ -92,6 +92,10 @@ export function Hero({ t }) {
       {/* Readability scrim — keeps the editorial copy legible over the imagery. */}
       <div className="hero-scrim" aria-hidden="true" />
 
+      {/* Targeting ring that frames the reveal lens (see .hero-lens in globals.css).
+          Purely decorative; tracks the same --mx/--my the mask uses. */}
+      <div className="hero-lens" aria-hidden="true" />
+
       <div className="hero-overlay">
         <div className="hero-runner" aria-hidden="true">
           <span className="hero-runner-l">{t.hero.runner}</span>

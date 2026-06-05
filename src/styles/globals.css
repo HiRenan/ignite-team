@@ -1660,8 +1660,10 @@ hr.rule-strong { background: var(--rule-strong); }
   overflow: clip;                          /* contain the cover-scaled imagery */
   --mx: 62%;
   --my: 46%;
-  --reveal-r: clamp(180px, 26vw, 340px);
-  --reveal-feather: 64px;
+  /* Size of the reveal lens. ↓ TWEAK HERE if you want it bigger/smaller.
+     (radius — the visible circle is twice this wide.) */
+  --reveal-r: clamp(82px, 9vw, 132px);
+  --reveal-feather: 30px; /* width of the soft edge */
 }
 
 .hero-media {
@@ -1702,6 +1704,36 @@ hr.rule-strong { background: var(--rule-strong); }
 /* No mask support at all → show only the base; never an unmasked risk frame. */
 @supports not ((-webkit-mask-image: radial-gradient(#000, #000)) or (mask-image: radial-gradient(#000, #000))) {
   .hero-media-reveal { display: none; }
+}
+
+/* Targeting ring — frames the reveal so the spotlight reads as a precise
+   scanner lens rather than a soft blob. It shares --mx/--my/--reveal-r with the
+   mask above, so it tracks the cursor in perfect lockstep with no extra JS.
+   Sits above the scrim (crisp ember) but below the copy (z-index 2). */
+.hero-lens {
+  position: absolute;
+  left: var(--mx);
+  top: var(--my);
+  width: calc(var(--reveal-r) * 2);
+  height: calc(var(--reveal-r) * 2);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 81, 50, 0.5);
+  box-shadow:
+    0 0 30px rgba(255, 81, 50, 0.18),
+    inset 0 0 26px rgba(255, 81, 50, 0.07);
+  z-index: 1;
+  pointer-events: none;
+  /* Hairline tick marks at the four cardinal points, viewfinder-style. */
+  background:
+    linear-gradient(rgba(255, 81, 50, 0.55), rgba(255, 81, 50, 0.55)) 50% 0 / 1px 8px no-repeat,
+    linear-gradient(rgba(255, 81, 50, 0.55), rgba(255, 81, 50, 0.55)) 50% 100% / 1px 8px no-repeat,
+    linear-gradient(rgba(255, 81, 50, 0.55), rgba(255, 81, 50, 0.55)) 0 50% / 8px 1px no-repeat,
+    linear-gradient(rgba(255, 81, 50, 0.55), rgba(255, 81, 50, 0.55)) 100% 50% / 8px 1px no-repeat;
+}
+/* Where masks aren't supported the reveal is hidden, so hide its frame too. */
+@supports not ((-webkit-mask-image: radial-gradient(#000, #000)) or (mask-image: radial-gradient(#000, #000))) {
+  .hero-lens { display: none; }
 }
 
 /* Readability scrim — above the imagery, below the copy. Tuned to darken the
