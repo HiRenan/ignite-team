@@ -1,11 +1,17 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { sectionReveal, sectionContainer, viewportOnce } from '../lib/motion.js';
 import PlateNumber from './atoms/PlateNumber.jsx';
 import GlobeSVG from './Globe/Globe.jsx';
+import { useInViewportOnce } from '../hooks/useInViewportOnce.js';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion.js';
 import { hasWebGL } from '../lib/webgl.js';
 import { OrbitalDescent } from './OrbitalDescent.jsx';
+
+// Same lazy cobe chunk the descent uses — so mobile / reduced-motion show the
+// SAME globe as desktop (just idle, no pinned scroll-descent). Stays out of the
+// initial bundle and only mounts when the section nears the viewport.
+const OrbitalGlobe = lazy(() => import('./Globe/OrbitalGlobe.jsx'));
 
 // Missão Orbital — picks ONE of two experiences at mount:
 //
@@ -43,13 +49,18 @@ export function OrbitalMissionSection({ t }) {
   if (hasGL && wideEnough && !reduced) {
     return <OrbitalDescent t={t} />;
   }
-  return <OrbitalStatic t={t} />;
+  return <OrbitalStatic t={t} hasGL={hasGL} />;
 }
 
-// Static, dependency-free fallback (reduced-motion · mobile · no-WebGL): the calm
-// editorial 2-column layout — copy on the left, a weightless line-art globe on the
-// right. No WebGL, no scroll-jacking, no satellite image; just the quiet version.
-function OrbitalStatic({ t }) {
+// Static layout (reduced-motion · mobile · no-WebGL): the calm 2-column editorial
+// version — copy left, globe right. It shows the SAME cobe globe as the desktop
+// descent, just IDLE (auto-rotates, no pinned scroll-jacking); reduced-motion
+// keeps it still. Only no-WebGL devices fall back to the line-art SVG.
+function OrbitalStatic({ t, hasGL }) {
+  // Mount the (lazy) globe only as the section nears the viewport — same as the
+  // descent, so the cobe chunk never touches the initial load / hero LCP.
+  const [stageRef, entered] = useInViewportOnce({ rootMargin: '300px' });
+
   return (
     <section id="orbital" className="section">
       <div className="section-runner">
@@ -75,7 +86,7 @@ function OrbitalStatic({ t }) {
           </motion.div>
         </motion.div>
 
-        <motion.div className="orbital-stage" variants={sectionReveal}>
+        <motion.div className="orbital-stage" ref={stageRef} variants={sectionReveal}>
           {/* Decorative orbital rings (styled in globals.css; hidden ≤780px). */}
           <svg
             className="globe-rings"
@@ -88,11 +99,21 @@ function OrbitalStatic({ t }) {
             <ellipse className="ring-c" cx="50" cy="50" rx="40" ry="20" transform="rotate(18 50 50)" />
           </svg>
 
-          {/* Static globe — no WebGL, no cobe. The line-art SVG is on-brand and
-              weightless. ▸ TO USE A PHOTO INSTEAD: drop public/assets/globo-estatico.png
-              and replace <GlobeSVG/> below with an <img src="/assets/globo-estatico.png" …/>. */}
+          {/* The SAME cobe globe as desktop, idle — so it looks identical on mobile.
+              No-WebGL devices get the weightless line-art SVG instead. ▸ The globe's
+              look / markers / route all live in Globe/OrbitalGlobe.jsx. */}
           <div className="orbital-stage-globe">
-            <GlobeSVG />
+            {hasGL ? (
+              entered ? (
+                <Suspense fallback={<div className="orbital-fallback" />}>
+                  <OrbitalGlobe className="orbital-globe-canvas" />
+                </Suspense>
+              ) : (
+                <div className="orbital-fallback" />
+              )
+            ) : (
+              <GlobeSVG />
+            )}
           </div>
         </motion.div>
       </motion.div>
